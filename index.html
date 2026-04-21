@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen GPyE — Unidades 1 a 3 · CDO FCE-UNLP</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F8F6F1; --surface: #FFFFFF; --surface2: #F2EFE8;
+    --border: rgba(0,0,0,0.10); --border-strong: rgba(0,0,0,0.18);
+    --text: #1A1916; --text-muted: #6B6860; --text-hint: #9E9B94;
+    --accent: #1A3A2A; --accent-light: #E1F5EE; --accent-text: #0F6E56;
+    --danger: #A32D2D; --danger-light: #FCEBEB; --danger-border: #E24B4A;
+    --warn-light: #FAEEDA; --warn-text: #854F0B;
+    --info-light: #E6F1FB; --info-text: #185FA5; --info-border: #378ADD;
+    --r: 10px; --r-lg: 16px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem 4rem; }
+  .page { max-width: 720px; margin: 0 auto; }
+
+  /* ── Header ── */
+  .header { border-bottom: 1px solid var(--border-strong); padding-bottom: 2rem; margin-bottom: 2.5rem; }
+  .header-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 0.6rem; }
+  .header h1 { font-family: 'DM Serif Display', serif; font-size: 2.2rem; font-weight: 400; line-height: 1.15; color: var(--text); margin-bottom: 1rem; }
+  .header-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .pill { font-size: 12px; color: var(--text-muted); background: var(--surface2); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); }
+
+  /* ── Pantalla de datos del alumno ── */
+  #screen-intro { }
+  .intro-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.75rem; margin-bottom: 1.5rem; }
+  .intro-card h2 { font-family: 'DM Serif Display', serif; font-size: 1.3rem; font-weight: 400; margin-bottom: 0.4rem; }
+  .intro-card p { font-size: 14px; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.6; }
+  .field-group { display: flex; flex-direction: column; gap: 1rem; }
+  .field label { font-size: 13px; font-weight: 500; color: var(--text-muted); display: block; margin-bottom: 5px; }
+  .field input { width: 100%; padding: 9px 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; border: 1px solid var(--border-strong); border-radius: var(--r); background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .field input:focus { border-color: var(--info-border); }
+  .field input.error { border-color: var(--danger-border); }
+  .field-error { font-size: 12px; color: var(--danger); margin-top: 4px; display: none; }
+  .start-btn { margin-top: 1.5rem; width: 100%; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; background: var(--accent); color: #fff; border: none; border-radius: var(--r); cursor: pointer; transition: background 0.15s; }
+  .start-btn:hover { background: #0F2B1E; }
+
+  /* ── Examen ── */
+  #screen-exam { display: none; }
+  .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2rem; padding: 1rem 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+  .legend-icon { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-strong); flex-shrink: 0; }
+  .legend-icon.sq { border-radius: 4px; }
+  .student-banner { background: var(--accent-light); border: 1px solid #9FE1CB; border-radius: var(--r); padding: 10px 14px; font-size: 13px; color: var(--accent-text); margin-bottom: 1.5rem; }
+  .progress-block { margin-bottom: 2.5rem; }
+  .progress-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+  .progress-row span:last-child { font-weight: 500; color: var(--text); }
+  .bar-bg { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+  .section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-hint); margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+  .q-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.25rem 1.5rem; margin-bottom: 1rem; transition: border-color 0.2s; }
+  .q-card.correct { border-color: #1D9E75; background: #F0FAF5; }
+  .q-card.partial { border-color: var(--warn-text); background: var(--warn-light); }
+  .q-card.wrong { border-color: var(--danger-border); background: var(--danger-light); }
+  .q-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 0.7rem; flex-wrap: wrap; }
+  .q-num { font-size: 11px; color: var(--text-hint); font-weight: 500; }
+  .diff-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .diff-basic { background: #EAF3DE; color: #3B6D11; }
+  .diff-medio { background: var(--warn-light); color: var(--warn-text); }
+  .diff-avanzado { background: var(--danger-light); color: var(--danger); }
+  .type-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+  .type-single { background: var(--surface2); color: var(--text-muted); }
+  .type-multi { background: var(--info-light); color: var(--info-text); }
+  .q-text { font-size: 15px; line-height: 1.6; color: var(--text); margin-bottom: 1rem; font-weight: 400; }
+  .q-text em, .opt em { font-style: italic; }
+  .multi-hint { font-size: 12px; color: var(--text-hint); margin-bottom: 0.6rem; font-style: italic; }
+  .options { display: flex; flex-direction: column; gap: 6px; }
+  .opt { display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px; border-radius: var(--r); border: 1px solid var(--border); cursor: pointer; font-size: 14px; color: var(--text); line-height: 1.5; background: var(--surface); transition: background 0.12s, border-color 0.12s; user-select: none; }
+  .opt:hover:not(.disabled) { background: var(--surface2); border-color: var(--border-strong); }
+  .opt.selected { border-color: var(--info-border); background: var(--info-light); color: var(--info-text); }
+  .opt.correct-ans { border-color: #1D9E75; background: #9FE1CB; color: #085041; font-weight: 500; }
+  .opt.wrong-ans { border-color: var(--danger-border); background: #F7C1C1; color: #791F1F; }
+  .opt.reveal { border-color: #1D9E75; background: var(--accent-light); color: var(--accent-text); }
+  .opt.disabled { cursor: default; }
+  .opt-indicator { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-strong); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; transition: all 0.12s; }
+  .opt-indicator.sq { border-radius: 4px; }
+  .opt.selected .opt-indicator { background: var(--info-border); border-color: var(--info-border); color: #fff; }
+  .opt.correct-ans .opt-indicator { background: #1D9E75; border-color: #1D9E75; color: #fff; }
+  .opt.wrong-ans .opt-indicator { background: var(--danger-border); border-color: var(--danger-border); color: #fff; }
+  .opt.reveal .opt-indicator { background: var(--accent-text); border-color: var(--accent-text); color: #fff; }
+  .submit-opt-btn { margin-top: 0.75rem; padding: 7px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; border-radius: var(--r); cursor: pointer; background: var(--accent); color: #fff; border: none; transition: background 0.15s, transform 0.1s; display: none; }
+  .submit-opt-btn:hover { background: #0F2B1E; }
+  .submit-opt-btn:active { transform: scale(0.98); }
+  .feedback { font-size: 13px; margin-top: 0.9rem; padding: 10px 12px; border-radius: var(--r); line-height: 1.55; display: none; }
+  .feedback.ok { background: #C6EDD9; color: #085041; }
+  .feedback.partial-ok { background: #FAC775; color: #412402; }
+  .feedback.fail { background: #F7C1C1; color: #791F1F; }
+  .actions { margin-top: 3rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .btn { padding: 10px 22px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; border-radius: var(--r); cursor: pointer; transition: background 0.15s, transform 0.1s; }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); color: #fff; border: none; }
+  .btn-primary:hover { background: #0F2B1E; }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border-strong); }
+  .btn-ghost:hover { background: var(--surface2); }
+
+  /* ── Pantalla de resultado ── */
+  #screen-result { display: none; }
+  .result-card { background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-lg); padding: 2rem 1.75rem; margin-bottom: 1.5rem; }
+  .result-score { font-family: 'DM Serif Display', serif; font-size: 3.5rem; font-weight: 400; color: var(--text); line-height: 1; margin-bottom: 6px; }
+  .result-label { font-size: 15px; color: var(--text-muted); margin-bottom: 1.25rem; }
+  .result-nota { display: inline-block; font-size: 13px; font-weight: 500; padding: 4px 14px; border-radius: 20px; background: var(--accent-light); color: var(--accent-text); }
+  .result-nota.repaso { background: var(--warn-light); color: var(--warn-text); }
+  .result-nota.danger { background: var(--danger-light); color: var(--danger); }
+  .result-breakdown { margin-top: 1.25rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .breakdown-item { background: var(--surface2); border-radius: var(--r); padding: 10px 12px; text-align: center; }
+  .breakdown-num { font-size: 1.4rem; font-weight: 500; color: var(--text); }
+  .breakdown-lbl { font-size: 11px; color: var(--text-hint); margin-top: 2px; }
+  .send-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.25rem 1.5rem; }
+  .send-block h3 { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .send-block p { font-size: 13px; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
+  .send-status { font-size: 13px; margin-top: 0.75rem; padding: 8px 12px; border-radius: var(--r); display: none; line-height: 1.5; }
+  .send-status.sending { background: var(--info-light); color: var(--info-text); }
+  .send-status.sent { background: var(--accent-light); color: var(--accent-text); }
+  .send-status.error { background: var(--danger-light); color: var(--danger); }
+  .result-actions { margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-hint); text-align: center; }
+  @media (max-width: 500px) { .header h1 { font-size: 1.6rem; } .q-text { font-size: 14px; } .opt { font-size: 13px; } .result-breakdown { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">Gestión de Personas y Equipos · CDO · FCE-UNLP</div>
+    <h1>Examen Parcial<br>Unidades 1 a 3</h1>
+    <div class="header-meta">
+      <span class="pill">20 preguntas</span>
+      <span class="pill">Libro abierto</span>
+      <span class="pill">Dificultad incremental</span>
+      <span class="pill">Maison + clases</span>
+    </div>
+  </div>
+
+  <!-- PANTALLA 1: Datos del alumno -->
+  <div id="screen-intro">
+    <div class="intro-card">
+      <h2>Antes de comenzar</h2>
+      <p>Completá tus datos. Se enviarán junto con tus resultados al finalizar el examen.</p>
+      <div class="field-group">
+        <div class="field">
+          <label for="inp-nombre">Nombre y apellido</label>
+          <input type="text" id="inp-nombre" placeholder="Ej: María González" autocomplete="name">
+          <div class="field-error" id="err-nombre">Ingresá tu nombre completo.</div>
+        </div>
+        <div class="field">
+          <label for="inp-email">Email institucional</label>
+          <input type="email" id="inp-email" placeholder="Ej: mgonzalez@alu.unlp.edu.ar" autocomplete="email">
+          <div class="field-error" id="err-email">Ingresá un email válido.</div>
+        </div>
+      </div>
+      <button class="start-btn" onclick="startExam()">Comenzar examen</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2: Examen -->
+  <div id="screen-exam">
+    <div class="legend">
+      <div class="legend-item"><div class="legend-icon"></div> Única respuesta correcta</div>
+      <div class="legend-item"><div class="legend-icon sq"></div> Múltiples respuestas correctas</div>
+    </div>
+    <div class="student-banner" id="student-banner"></div>
+    <div class="progress-block">
+      <div class="progress-row"><span id="prog-label">0 de 20 respondidas</span><span id="score-live"></span></div>
+      <div class="bar-bg"><div class="bar-fill" id="bar"></div></div>
+    </div>
+    <div id="qcontainer"></div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="showResult()">Ver resultado final</button>
+      <button class="btn btn-ghost" onclick="resetExam()">Reiniciar examen</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 3: Resultado y envío -->
+  <div id="screen-result">
+    <div class="result-card">
+      <div class="result-score" id="res-score"></div>
+      <div class="result-label" id="res-label"></div>
+      <span class="result-nota" id="res-nota"></span>
+      <div class="result-breakdown">
+        <div class="breakdown-item"><div class="breakdown-num" id="bd-correct"></div><div class="breakdown-lbl">Correctas</div></div>
+        <div class="breakdown-item"><div class="breakdown-num" id="bd-partial"></div><div class="breakdown-lbl">Parciales</div></div>
+        <div class="breakdown-item"><div class="breakdown-num" id="bd-wrong"></div><div class="breakdown-lbl">Incorrectas</div></div>
+      </div>
+    </div>
+
+    <div class="send-block">
+      <h3>Enviar resultado a la cátedra</h3>
+      <p>Tus respuestas y puntaje se registrarán en la planilla de la cátedra. El envío es individual y no se puede modificar.</p>
+      <button class="btn btn-primary" id="send-btn" onclick="sendResults()">Enviar mis resultados</button>
+      <div class="send-status" id="send-status"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn btn-ghost" onclick="resetExam()">Volver a hacer el examen</button>
+    </div>
+  </div>
+
+  <div class="footer">GPyE 2026 · Material de estudio generado a partir de Pablo Maison, <em>El trabajo en la pospandemia</em>, y clases de la cátedra.</div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIGURACIÓN — reemplazá esta URL por la de tu Apps Script deployment
+// ─────────────────────────────────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'PEGAR_URL_APPS_SCRIPT_AQUI';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BANCO DE PREGUNTAS
+// ─────────────────────────────────────────────────────────────────────────────
+const BANK = [
+  // BÁSICAS
+  {
+    s:"Unidad 1 — Comportamiento humano en organizaciones <em>data driven</em> (orientadas a datos)",
+    d:"basic",multi:false,
+    q:"El Comportamiento Organizacional (CO) trabaja simultáneamente en tres niveles. ¿Cuáles son?",
+    o:["Estratégico, táctico y operativo","Individual, grupal y organizacional","Económico, social y tecnológico","Formal, informal y sistémico"],
+    a:[1],f:"El CO opera en tres niveles: el individuo (motivación, personalidad), el grupo (dinámica de equipos, conflicto) y la organización (cultura, estructura, liderazgo)."
+  },
+  {
+    d:"basic",multi:false,
+    q:"Maison describe la pandemia de COVID-19 como un <em>'turning point'</em> (punto de inflexión) para las organizaciones. ¿Qué significa ese concepto en su argumento?",
+    o:["Un punto de regreso a los modelos de trabajo previos","Un evento que aceleró transformaciones que ya estaban en marcha","Un fenómeno exclusivo de las industrias digitales","Una crisis que solo afectó a las economías desarrolladas"],
+    a:[1],f:"Para Maison, el COVID fue un catalizador que comprimió décadas de transformación organizacional en meses, no un fenómeno nuevo sino una aceleración de lo ya iniciado."
+  },
+  {
+    d:"basic",multi:false,
+    q:"¿Cuál es la diferencia conceptual central entre igualdad y equidad en el marco de <em>DEI</em> (Diversidad, Equidad e Inclusión)?",
+    o:["La igualdad aplica solo a géneros; la equidad, a etnias","Son sinónimos en distintos contextos geográficos","La equidad implica resultados idénticos para todos","La igualdad da lo mismo a todos; la equidad compensa desventajas de origen"],
+    a:[3],f:"La igualdad trata a todos igual; la equidad diseña reglas que compensan las desventajas de origen. Un equipo puede ser diverso pero no equitativo."
+  },
+  {
+    d:"basic",multi:false,
+    q:"Según Jacob Morgan, ¿qué tres entornos conforman la <em>Employee Experience</em> (Experiencia del Empleado)?",
+    o:["Económico, relacional y funcional","Formal, informal y digital","Físico, tecnológico y cultural","Individual, colectivo y organizacional"],
+    a:[2],f:"Morgan define la <em>Employee Experience</em> como la suma de interacciones con el empleador, influenciada por el entorno físico (espacios), tecnológico (herramientas) y cultural (valores y comportamientos)."
+  },
+  {
+    d:"basic",multi:false,
+    q:"¿Qué mide el <em>eNPS</em> (<em>Employee Net Promoter Score</em>, Índice de Recomendación del Empleado)?",
+    o:["El costo de rotación del personal","La disposición de los empleados a recomendar la empresa como lugar de trabajo","La productividad individual de cada empleado","El nivel de automatización de procesos de RRHH"],
+    a:[1],f:"El <em>eNPS</em> mide qué porcentaje de empleados recomendaría la empresa como lugar de trabajo. Se calcula como % de promotores (9-10) menos % de detractores (1-6)."
+  },
+  {
+    d:"basic",multi:false,
+    q:"Maison sostiene que los <em>centennials</em> (Generación Z) tienen una 'nueva noción de jerarquía'. ¿En qué consiste?",
+    o:["Construyen jerarquías informales basadas en antigüedad","Valoran más la jerarquía formal que las generaciones anteriores","No aceptan órdenes por el solo hecho de la posición; consideran a todos como iguales","Rechazan toda forma de liderazgo, incluso el basado en conocimiento"],
+    a:[2],f:"Para Maison, los <em>centennials</em> no establecen vínculos jerárquicos basados en posición formal. Consideran a todos iguales y cuestionan la autoridad si no va acompañada de conocimiento y empatía."
+  },
+  // MEDIAS
+  {
+    s:"Unidad 2 — Transformación del trabajo, digitalización y dinámicas generacionales",
+    d:"medio",multi:false,
+    q:"Según Maison, ¿qué distingue a la 'experiencia del empleado' del modelo anterior de 'proceso' de desarrollo laboral?",
+    o:["La experiencia se enfoca en el corto plazo y las necesidades presentes; el proceso prometía certezas a largo plazo","La experiencia es exclusiva de empresas tecnológicas; el proceso aplica a industrias tradicionales","Son conceptos equivalentes con distinta denominación según el sector","La experiencia mide resultados financieros; el proceso mide satisfacción"],
+    a:[0],f:"El modelo de proceso ofrecía previsibilidad a largo plazo (carrera, pensión, metas escalonadas). La experiencia del empleado satisface necesidades actuales: entorno atractivo, aprendizaje continuo, flexibilidad, reconocimiento."
+  },
+  {
+    d:"medio",multi:true,
+    q:"La clase sobre <em>EVP</em> (<em>Employee Value Proposition</em>, Propuesta de Valor al Empleado) distingue entre <em>EVP</em>, <em>employer branding</em> (marca empleadora) y compensación total. ¿Cuáles afirmaciones son correctas? (seleccioná todas las que aplican)",
+    o:["El <em>employer branding</em> es cómo se comunica la <em>EVP</em> hacia el exterior, no la <em>EVP</em> en sí misma","La compensación total (salario + beneficios + <em>bonus</em>) es solo una parte de la <em>EVP</em>","Una <em>EVP</em> débil con buen <em>employer branding</em> genera rotación temprana porque los candidatos entran con expectativas no cumplidas","La <em>EVP</em> y la compensación total son equivalentes: quien paga más tiene mejor <em>EVP</em>"],
+    a:[0,1,2],f:"La <em>EVP</em> es la sustancia (lo que realmente ofrecés); el <em>employer branding</em> es cómo la comunicás. La compensación total es solo la Dimensión 1 de 5. Randstad 2025: el equilibrio vida-trabajo superó al salario como factor #1 por primera vez en 22 años."
+  },
+  {
+    d:"medio",multi:true,
+    q:"El <em>WEF Future of Jobs Report</em> 2025 (Informe del Foro Económico Mundial sobre el Futuro del Trabajo) identifica trabajos con alto crecimiento y alto declive al 2030. ¿Cuáles afirmaciones son correctas? (seleccioná todas las que aplican)",
+    o:["<em>Big Data specialists</em> (especialistas en grandes volúmenes de datos) es el trabajo de mayor crecimiento porcentual","<em>Data entry clerks</em> (ingresadores de datos) y <em>administrative assistants</em> (asistentes administrativos) están entre los de mayor caída absoluta","Las habilidades de mayor crecimiento son exclusivamente técnicas","Resiliencia, pensamiento creativo y curiosidad figuran entre las <em>skills</em> (habilidades) más demandadas al 2030"],
+    a:[0,1,3],f:"La paradoja central: la automatización desplaza tareas rutinarias pero crea demanda de habilidades humanas difícilmente replicables. <em>Bank tellers</em> y <em>cashiers</em> (cajeros) también están entre los de mayor automatización."
+  },
+  {
+    d:"medio",multi:true,
+    q:"El <em>dataset</em> (conjunto de datos) HR_Analytics mostró patrones claros sobre rotación. ¿Cuáles hallazgos son correctos? (seleccioná todos los que aplican)",
+    o:["El <em>overtime</em> (trabajo en horas extra) es el predictor individual más fuerte de rotación","<em>Overtime</em> + bajo <em>work-life balance</em> (equilibrio vida-trabajo) eleva la rotación al 45,5%","Pasar de 0 a 1 sola capacitación reduce la rotación más que pasar de 1 a 6 capacitaciones","Con <em>EnvironmentSatisfaction</em> (satisfacción con el entorno) = 1, la rotación es similar al promedio general"],
+    a:[0,1,2],f:"El problema no es el <em>work-life balance</em> per se: es el <em>overtime</em> que lo destruye. El salto de 0 a 1 capacitación (27,3% → 12,7%) es el más grande. Con <em>EnvironmentSatisfaction</em>=1, la rotación llega al 25,4%, casi el doble del promedio."
+  },
+  {
+    d:"medio",multi:true,
+    q:"La clase comparó los modelos de trabajo remoto e híbrido. ¿Cuáles afirmaciones sobre su impacto son correctas? (seleccioná todas las que aplican)",
+    o:["El trabajo 100% remoto elimina tiempos y costos de traslado, pero tiene mayor riesgo de aislamiento social","Un estudio de Cisco (2022) indicó que el 76% de trabajadores afirma poder realizar plenamente su trabajo en remoto","La proximidad física (menos de 8 metros de un perfil de alto rendimiento) mejora el desempeño en un 15%","El modelo híbrido genera exactamente los mismos resultados de productividad que el 100% presencial"],
+    a:[0,1,2],f:"Los tres primeros son hallazgos respaldados por el material. El modelo híbrido no replica exactamente el presencial: tiene ventajas propias y desventajas específicas."
+  },
+  {
+    d:"medio",multi:false,
+    q:"Maison sostiene que la pandemia provocó 'modelos atomizados de comunicación'. ¿Cuál es el impacto organizacional concreto que describe?",
+    o:["Las generaciones más jóvenes adoptaron los modelos de comunicación de las generaciones previas","Las empresas adoptaron plataformas de comunicación interna más robustas","Los mensajes se volvieron cortos, unidireccionales y sin estructura de respuesta, tensionando los modelos relacionales intergeneracionales","Mejoraron los índices de satisfacción con la comunicación interna"],
+    a:[2],f:"Maison describe una comunicación fragmentada, unidireccional, sin continuidad. Esto tensiona a generaciones que construyeron su modelo relacional en la conversación presencial, que ahora deben adaptarse al mundo digital, no al revés."
+  },
+  {
+    d:"medio",multi:false,
+    q:"El material sobre el <em>CV</em> para perfiles de analítica plantea que 'más de una página para perfiles <em>junior</em> comunica que no sabés filtrar lo relevante'. ¿Qué competencia subyace?",
+    o:["La habilidad técnica en herramientas de visualización","La síntesis como habilidad de criterio: equivalente a saber qué métricas importan y cuáles son ruido","La capacidad de <em>networking</em> (construcción de red profesional) en plataformas digitales","La capacidad de redacción formal y académica"],
+    a:[1],f:"La lógica es directa: un <em>data analyst</em> (analista de datos) que no puede filtrar lo relevante en su propio <em>CV</em> difícilmente podrá hacerlo con datos. La síntesis no es estética, es una señal de criterio analítico."
+  },
+  // AVANZADAS
+  {
+    s:"Unidad 3 — Gestión estratégica del talento",
+    d:"avanzado",multi:true,
+    q:"Schein describe la cultura organizacional en tres capas. ¿Cuáles afirmaciones son correctas? (seleccioná todas las que aplican)",
+    o:["Los artefactos visibles son la primera capa: lo que cualquier externo puede observar directamente","Los valores declarados pueden no reflejar los comportamientos reales de la organización","Los supuestos básicos subyacentes son la capa más difícil de cambiar porque son creencias inconscientes que nadie cuestiona","La cultura real vive en la primera capa porque es la más visible y reconocible"],
+    a:[0,1,2],f:"La cultura real vive en los supuestos subyacentes (tercera capa). Los valores declarados pueden decir 'somos transparentes' mientras la cultura real penaliza quien habla sin filtro. Cambiar la tercera capa exige hacerla explícita primero."
+  },
+  {
+    d:"avanzado",multi:true,
+    q:"La 'Paradoja de la Meritocracia' y el concepto de <em>'Brilliant Jerk'</em> (el genio tóxico) describen patologías culturales en entornos <em>tech</em>. ¿Cuáles afirmaciones son correctas? (seleccioná todas las que aplican)",
+    o:["Cuando una empresa se autodenomina meritocrática, los líderes tienden a exhibir mayores sesgos porque asumen que sus decisiones son objetivas","El <em>'Brilliant Jerk'</em> es tolerado bajo la lógica de que su productividad técnica justifica sus comportamientos tóxicos","Métricas como 'líneas de código' o número de <em>deploys</em> (despliegues) capturan bien el mérito real porque son cuantificables","El sesgo en las métricas de rendimiento suele ignorar el 'trabajo invisible' como mentorear <em>juniors</em> o prevenir errores de arquitectura"],
+    a:[0,1,3],f:"Las métricas cuantitativas no son neutras: incentivan visibilidad e individualismo, ignoran el trabajo colaborativo invisible. La paradoja meritocrática reduce la vigilancia sobre sesgos. El <em>Brilliant Jerk</em> erosiona la colaboración que el desarrollo de <em>software</em> complejo requiere."
+  },
+  {
+    d:"avanzado",multi:true,
+    q:"En <em>People Analytics</em> (Analítica de Personas), la combinación de <em>O-data</em> (datos operativos) y <em>X-data</em> (datos de experiencia) produce los llamados 'momentos de verdad'. ¿Cuáles afirmaciones son correctas? (seleccioná todas las que aplican)",
+    o:["Los <em>O-data</em> responden el 'qué' (<em>hires</em>, cambios de puesto, bonos) pero no el 'por qué' de esos fenómenos","Los <em>X-data</em> (<em>engagement</em>, sentimiento, <em>voice of employee</em>) explican las causas detrás de los datos operativos","Usar solo <em>O-data</em> permite diseñar intervenciones precisas sobre las causas reales de rotación","La integración <em>O+X</em> es lo que permite pasar de describir fenómenos a diseñar intervenciones sobre sus causas"],
+    a:[0,1,3],f:"Sin <em>X-data</em>, los <em>O-data</em> solo describen síntomas. Las intervenciones basadas solo en datos operativos atacan el fenómeno visible, no sus causas. La combinación <em>O+X</em> es la base de los 'momentos de verdad' del ciclo del empleado."
+  },
+  {
+    d:"avanzado",multi:true,
+    q:"El <em>dataset</em> HR_Analytics mostró que el manager modera significativamente la rotación. ¿Cuáles hallazgos son correctos? (seleccioná todos los que aplican)",
+    o:["Con <em>JobSatisfaction</em>=1 y manager nuevo, la rotación es del 44,3%; con el mismo manager por 6+ años, baja al 13,9%","El manager de largo plazo 'amortigua' la insatisfacción laboral, pero no la cancela completamente","Cambiar de manager es un factor de riesgo de retención independiente del nivel de satisfacción laboral","Con alta satisfacción (<em>JS</em>=4), tener un manager nuevo no genera ningún riesgo adicional de rotación"],
+    a:[0,1,2],f:"Incluso con <em>JS</em>=4, tener manager nuevo eleva la rotación al 19,2%. El cambio de manager en sí mismo es un riesgo de retención independiente de la satisfacción. En términos de <em>Employee Experience</em>: la transición de liderazgo es un 'momento de verdad' que debe gestionarse activamente."
+  },
+  {
+    d:"avanzado",multi:true,
+    q:"Maison argumenta que el COVID-19 reconfiguró el mapa cultural de las organizaciones. ¿Cuáles afirmaciones reflejan correctamente su análisis? (seleccioná todas las que aplican)",
+    o:["La pandemia invirtió la dirección histórica de la adaptación: las generaciones X y anteriores debieron adaptarse a modelos que los jóvenes ya manejaban","La <em>'Gran Renuncia'</em> (<em>Great Resignation</em>) fue en el trasfondo una reivindicación de una vida e identidad propia, no solo una búsqueda de mejores condiciones laborales","La pandemia representó solo un ajuste menor para todas las generaciones en términos de comunicación virtual","Los <em>centennials</em> y <em>millennials</em> tuvieron ventaja competitiva en la adaptación al trabajo virtual por haber construido su aprendizaje desde la interacción digital"],
+    a:[0,1,3],f:"La pandemia NO fue un ajuste menor para las generaciones previas: fue un <em>reset</em> (reinicio) forzado. Maison distingue: la gente no buscaba una 'diferente vida laboral' sino 'una vida diferente'. Los nativos digitales tenían ventaja estructural en la adaptación."
+  },
+  {
+    d:"avanzado",multi:true,
+    q:"Un modelo predictivo de <em>People Analytics</em> entrenado con datos históricos puede replicar sesgos sistémicos. ¿Cuáles afirmaciones son correctas? (seleccioná todas las que aplican)",
+    o:["Un modelo de alto potencial entrenado con 10 años de datos aprende a replicar quién fue promovido en el pasado, perpetuando los sesgos históricos","El caso IBM HR mostró mujeres subrepresentadas en <em>JobLevel</em> alto, lo que afecta directamente los modelos entrenados con esos datos","Auditar sesgos en los datos de entrenamiento es una consideración ética opcional, no parte del proceso analítico central","La <em>bro culture</em> (cultura masculinizada y excluyente) y la homogeneidad en equipos <em>tech</em> generan puntos ciegos cognitivos que afectan la calidad de los modelos"],
+    a:[0,1,3],f:"Auditar sesgos NO es opcional: es parte central del proceso analítico en RRHH. Los datos reflejan la historia de la organización, incluyendo sus sesgos. Un modelo 'objetivo' entrenado con datos sesgados es un amplificador de inequidad."
+  },
+  {
+    d:"avanzado",multi:true,
+    q:"Maison describe tres transformaciones que perdurarán a largo plazo en las organizaciones <em>post-pandemia</em>. ¿Cuáles son? (seleccioná todas las que aplican)",
+    o:["Transformación cultural: nuevos sistemas de valores, comunicación y compromiso con el trabajo","Transformación de las dinámicas de trabajo: virtualidad, reducción de espacios físicos individuales y mayor colaboración","Transformación de los modelos de gestión de capital humano: digitalización, transferencia de responsabilidad al líder, equipos virtuales ágiles","Transformación regulatoria: nuevos marcos legales de protección para el trabajo remoto"],
+    a:[0,1,2],f:"Las tres transformaciones de Maison son: cultural, de dinámicas de trabajo y de modelos de gestión de capital humano. La transformación regulatoria no es una de las tres que identifica como estructurales y perdurables."
+  }
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ESTADO
+// ─────────────────────────────────────────────────────────────────────────────
+let Q = [];
+let answered = {}, multiSelected = {};
+let studentName = '', studentEmail = '';
+let resultSent = false;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHUFFLE
+// ─────────────────────────────────────────────────────────────────────────────
+function shuffleQ(q) {
+  const indices = q.o.map((_,i)=>i);
+  for(let i=indices.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [indices[i],indices[j]]=[indices[j],indices[i]];
+  }
+  const newOpts=indices.map(i=>q.o[i]);
+  const oldCorrect=new Set(q.a);
+  const newCorrect=indices.map((oldIdx,newIdx)=>oldCorrect.has(oldIdx)?newIdx:null).filter(x=>x!==null);
+  return {...q, o:newOpts, a:newCorrect};
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PANTALLA INTRO
+// ─────────────────────────────────────────────────────────────────────────────
+function startExam() {
+  const nameEl = document.getElementById('inp-nombre');
+  const emailEl = document.getElementById('inp-email');
+  const errName = document.getElementById('err-nombre');
+  const errEmail = document.getElementById('err-email');
+  let valid = true;
+
+  nameEl.classList.remove('error'); errName.style.display='none';
+  emailEl.classList.remove('error'); errEmail.style.display='none';
+
+  if(!nameEl.value.trim() || nameEl.value.trim().split(' ').length < 2) {
+    nameEl.classList.add('error'); errName.style.display='block'; valid=false;
+  }
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRe.test(emailEl.value.trim())) {
+    emailEl.classList.add('error'); errEmail.style.display='block'; valid=false;
+  }
+  if(!valid) return;
+
+  studentName = nameEl.value.trim();
+  studentEmail = emailEl.value.trim();
+
+  Q = BANK.map(shuffleQ);
+  answered = {}; multiSelected = {}; resultSent = false;
+
+  document.getElementById('student-banner').innerHTML =
+    `Completando el examen como <strong>${studentName}</strong> &nbsp;·&nbsp; ${studentEmail}`;
+
+  document.getElementById('screen-intro').style.display = 'none';
+  document.getElementById('screen-exam').style.display = 'block';
+  renderQuestions();
+  updateProg();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER PREGUNTAS
+// ─────────────────────────────────────────────────────────────────────────────
+function diffLabel(d){return d==='basic'?'Básica':d==='medio'?'Media':'Avanzada';}
+function diffClass(d){return d==='basic'?'diff-basic':d==='medio'?'diff-medio':'diff-avanzado';}
+
+function renderQuestions() {
+  const c = document.getElementById('qcontainer');
+  let html = '';
+  Q.forEach((q,i) => {
+    if(q.s) html += `<div class="section-label">${q.s}</div>`;
+    const tb = q.multi
+      ? `<span class="type-badge type-multi">Múltiple</span>`
+      : `<span class="type-badge type-single">Única</span>`;
+    const indCls = q.multi ? 'sq' : '';
+    html += `<div class="q-card" id="card-${i}">
+      <div class="q-meta">
+        <span class="q-num">Pregunta ${i+1}</span>
+        <span class="diff-badge ${diffClass(q.d)}">${diffLabel(q.d)}</span>
+        ${tb}
+      </div>
+      <div class="q-text">${q.q}</div>
+      ${q.multi ? `<div class="multi-hint">Puede haber más de una opción correcta. Seleccioná todas las que aplican y luego confirmá.</div>` : ''}
+      <div class="options">
+        ${q.o.map((opt,j) => `
+          <div class="opt" id="opt-${i}-${j}" onclick="pickOpt(${i},${j})">
+            <span class="opt-indicator ${indCls}" id="ind-${i}-${j}"></span>
+            <span>${opt}</span>
+          </div>`).join('')}
+      </div>
+      ${q.multi ? `<button class="submit-opt-btn" id="sbtn-${i}" onclick="submitMulti(${i})">Confirmar selección</button>` : ''}
+      <div class="feedback" id="fb-${i}"></div>
+    </div>`;
+  });
+  c.innerHTML = html;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LÓGICA DE RESPUESTA
+// ─────────────────────────────────────────────────────────────────────────────
+function pickOpt(qi, oi) {
+  if(answered[qi] !== undefined) return;
+  const q = Q[qi];
+  if(!q.multi) {
+    answered[qi] = [oi];
+    applyResults(qi, new Set([oi]), new Set(q.a));
+    updateProg();
+  } else {
+    if(!multiSelected[qi]) multiSelected[qi] = new Set();
+    const sel = multiSelected[qi];
+    const el = document.getElementById(`opt-${qi}-${oi}`);
+    const ind = document.getElementById(`ind-${qi}-${oi}`);
+    if(sel.has(oi)) { sel.delete(oi); el.className='opt'; ind.innerHTML=''; }
+    else { sel.add(oi); el.className='opt selected'; ind.innerHTML='✓'; }
+    const btn = document.getElementById(`sbtn-${qi}`);
+    if(btn) btn.style.display = sel.size > 0 ? 'inline-block' : 'none';
+  }
+}
+
+function submitMulti(qi) {
+  if(answered[qi] !== undefined) return;
+  const q = Q[qi];
+  const sel = multiSelected[qi] || new Set();
+  answered[qi] = Array.from(sel);
+  const btn = document.getElementById(`sbtn-${qi}`);
+  if(btn) btn.style.display = 'none';
+  applyResults(qi, sel, new Set(q.a));
+  updateProg();
+}
+
+function applyResults(qi, sel, correct) {
+  const q = Q[qi];
+  const card = document.getElementById(`card-${qi}`);
+  let allRight = true, anyRight = false;
+  for(let j=0; j<q.o.length; j++) {
+    const el = document.getElementById(`opt-${qi}-${j}`);
+    const ind = document.getElementById(`ind-${qi}-${j}`);
+    el.classList.add('disabled');
+    const isC = correct.has(j), isS = sel.has(j);
+    if(isS && isC) { el.className='opt correct-ans disabled'; ind.innerHTML='✓'; anyRight=true; }
+    else if(isS && !isC) { el.className='opt wrong-ans disabled'; ind.innerHTML='✗'; allRight=false; }
+    else if(!isS && isC) { el.className='opt reveal disabled'; ind.innerHTML='✓'; allRight=false; }
+    else el.className='opt disabled';
+  }
+  const perfect = allRight && sel.size === correct.size;
+  const fb = document.getElementById(`fb-${qi}`);
+  if(perfect) { fb.className='feedback ok'; fb.innerHTML='&#10003; Correcto. '+q.f; card.className='q-card correct'; }
+  else if(anyRight && sel.size > 0) { fb.className='feedback partial-ok'; fb.innerHTML='&#9651; Parcialmente correcto. '+q.f; card.className='q-card partial'; }
+  else { fb.className='feedback fail'; fb.innerHTML='&#10007; Incorrecto. '+q.f; card.className='q-card wrong'; }
+  fb.style.display = 'block';
+}
+
+function getQuestionResult(i) {
+  if(answered[i] === undefined) return 'sin responder';
+  const q = Q[i];
+  const sel = new Set(Array.isArray(answered[i]) ? answered[i] : [answered[i]]);
+  const right = new Set(q.a);
+  if(sel.size === right.size && [...sel].every(x => right.has(x))) return 'correcta';
+  const anyRight = [...sel].some(x => right.has(x));
+  return (anyRight && sel.size > 0) ? 'parcial' : 'incorrecta';
+}
+
+function isCorrect(i) { return getQuestionResult(i) === 'correcta'; }
+function isPartial(i) { return getQuestionResult(i) === 'parcial'; }
+
+function updateProg() {
+  const done = Object.keys(answered).length;
+  const correct = Object.keys(answered).filter(i => isCorrect(i)).length;
+  document.getElementById('prog-label').textContent = `${done} de ${Q.length} respondidas`;
+  document.getElementById('score-live').textContent = done > 0 ? `${correct} correctas` : '';
+  document.getElementById('bar').style.width = `${Math.round(done/Q.length*100)}%`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESULTADO FINAL
+// ─────────────────────────────────────────────────────────────────────────────
+function showResult() {
+  const total = Q.length;
+  const correct = Object.keys(answered).filter(i => isCorrect(Number(i))).length;
+  const partial = Object.keys(answered).filter(i => isPartial(Number(i))).length;
+  const wrong = Object.keys(answered).filter(i => {
+    const r = getQuestionResult(Number(i));
+    return r === 'incorrecta';
+  }).length;
+  const pct = Math.round(correct / total * 100);
+  let nota = pct>=90?'Sobresaliente':pct>=75?'Muy bueno':pct>=60?'Aprobado':'Revisar contenidos';
+  let nc = pct>=75?'':pct>=60?'repaso':'danger';
+
+  document.getElementById('res-score').textContent = `${correct} / ${total}`;
+  document.getElementById('res-label').textContent = `${pct}% de respuestas correctas`;
+  const notaEl = document.getElementById('res-nota');
+  notaEl.textContent = nota;
+  notaEl.className = `result-nota ${nc}`;
+  document.getElementById('bd-correct').textContent = correct;
+  document.getElementById('bd-partial').textContent = partial;
+  document.getElementById('bd-wrong').textContent = wrong;
+
+  document.getElementById('screen-exam').style.display = 'none';
+  document.getElementById('screen-result').style.display = 'block';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENVÍO A GOOGLE SHEETS
+// ─────────────────────────────────────────────────────────────────────────────
+function sendResults() {
+  if(resultSent) return;
+  if(APPS_SCRIPT_URL === 'PEGAR_URL_APPS_SCRIPT_AQUI') {
+    const st = document.getElementById('send-status');
+    st.className = 'send-status error';
+    st.innerHTML = 'El examen aún no está conectado a una planilla. Contactá a la cátedra.';
+    st.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('send-btn');
+  const st = document.getElementById('send-status');
+  btn.disabled = true;
+  st.className = 'send-status sending';
+  st.innerHTML = 'Enviando resultados...';
+  st.style.display = 'block';
+
+  const total = Q.length;
+  const correct = Object.keys(answered).filter(i => isCorrect(Number(i))).length;
+  const pct = Math.round(correct/total*100);
+  const now = new Date();
+  const timestamp = now.toLocaleDateString('es-AR') + ' ' + now.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+
+  // Detalle por pregunta
+  const detalles = Q.map((q, i) => {
+    const res = getQuestionResult(i);
+    const selIdx = answered[i] !== undefined
+      ? (Array.isArray(answered[i]) ? answered[i] : [answered[i]])
+      : [];
+    const selTexts = selIdx.map(j => q.o[j].replace(/<[^>]+>/g,'')).join(' | ');
+    return `P${i+1}: ${res} (${selTexts || 'sin responder'})`;
+  }).join('\n');
+
+  const payload = {
+    nombre: studentName,
+    email: studentEmail,
+    timestamp,
+    puntaje: `${correct}/${total}`,
+    porcentaje: `${pct}%`,
+    nota: pct>=90?'Sobresaliente':pct>=75?'Muy bueno':pct>=60?'Aprobado':'Revisar contenidos',
+    detalle: detalles
+  };
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    resultSent = true;
+    st.className = 'send-status sent';
+    st.innerHTML = '&#10003; Resultado enviado correctamente. La cátedra ya puede verlo en la planilla.';
+    btn.textContent = 'Resultado enviado';
+  })
+  .catch(() => {
+    btn.disabled = false;
+    st.className = 'send-status error';
+    st.innerHTML = 'Error al enviar. Revisá tu conexión e intentá de nuevo.';
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESET
+// ─────────────────────────────────────────────────────────────────────────────
+function resetExam() {
+  answered = {}; multiSelected = {}; resultSent = false;
+  Q = BANK.map(shuffleQ);
+  document.getElementById('screen-result').style.display = 'none';
+  document.getElementById('screen-exam').style.display = 'none';
+  document.getElementById('screen-intro').style.display = 'block';
+  document.getElementById('inp-nombre').value = '';
+  document.getElementById('inp-email').value = '';
+  document.getElementById('send-status').style.display = 'none';
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('send-btn').textContent = 'Enviar mis resultados';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>
