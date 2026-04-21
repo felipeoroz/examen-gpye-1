@@ -209,7 +209,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURACIÓN — reemplazá esta URL por la de tu Apps Script deployment
 // ─────────────────────────────────────────────────────────────────────────────
-const APPS_SCRIPT_URL = 'PEGAR_URL_APPS_SCRIPT_AQUI';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx2yIuhklfNEVnVjZ7r5iwFAziBSpcTO8WxnljB0kB1oqhPSPrXFR9Yg8nsZzLjbOD8/exec';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BANCO DE PREGUNTAS
@@ -550,7 +550,7 @@ function showResult() {
 // ─────────────────────────────────────────────────────────────────────────────
 function sendResults() {
   if(resultSent) return;
-  if(APPS_SCRIPT_URL === 'PEGAR_URL_APPS_SCRIPT_AQUI') {
+  if(APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbx2yIuhklfNEVnVjZ7r5iwFAziBSpcTO8WxnljB0kB1oqhPSPrXFR9Yg8nsZzLjbOD8/exec') {
     const st = document.getElementById('send-status');
     st.className = 'send-status error';
     st.innerHTML = 'El examen aún no está conectado a una planilla. Contactá a la cátedra.';
