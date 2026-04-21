@@ -544,13 +544,13 @@ function showResult() {
   document.getElementById('screen-result').style.display = 'block';
   window.scrollTo({top:0, behavior:'smooth'});
 }
- 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ENVÍO A GOOGLE SHEETS
 // ─────────────────────────────────────────────────────────────────────────────
 function sendResults() {
   if(resultSent) return;
-  if(APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbxpN_W1L2ACkkoxr9H2kc_6JjNKlyXzZ0mnQnVH57rrSoDZ8T0gimG2DjMjP7aW6EHe/exec') {
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('script.google.com') === -1) {
     const st = document.getElementById('send-status');
     st.className = 'send-status error';
     st.innerHTML = 'El examen aún no está conectado a una planilla. Contactá a la cátedra.';
