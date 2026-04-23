@@ -132,7 +132,7 @@
     <h1>Examen Parcial<br>Unidades 1 a 3</h1>
     <div class="header-meta">
       <span class="pill">20 preguntas</span>
-      <span class="pill">Libro abierto</span>
+      <span class="pill">Libro abierto + IA abierta</span>
       <span class="pill">Dificultad incremental</span>
       <span class="pill">Maison + clases</span>
     </div>
@@ -165,6 +165,13 @@
       <div class="legend-item"><div class="legend-icon"></div> Única respuesta correcta</div>
       <div class="legend-item"><div class="legend-icon sq"></div> Múltiples respuestas correctas</div>
     </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:1.25rem;font-size:13px;color:var(--text-muted);line-height:1.9;display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <span><strong style="color:var(--text);">Puntaje</strong></span>
+      <span style="color:#085041;">&#10003; Correcta: 5 pts</span>
+      <span style="color:#854F0B;">&#9651; Parcial: 2,5 pts</span>
+      <span style="color:#A32D2D;">&#10007; Incorrecta: 0 pts</span>
+      <span style="color:var(--text-muted);">Total: sobre 100</span>
+    </div>
     <div class="student-banner" id="student-banner"></div>
     <div class="progress-block">
       <div class="progress-row"><span id="prog-label">0 de 20 respondidas</span><span id="score-live"></span></div>
@@ -172,33 +179,31 @@
     </div>
     <div id="qcontainer"></div>
     <div class="actions">
-      <button class="btn btn-primary" onclick="showResult()">Ver resultado final</button>
-      <button class="btn btn-ghost" onclick="resetExam()">Reiniciar examen</button>
+      <button class="btn btn-primary" onclick="confirmSubmit()">Enviar examen</button>
     </div>
   </div>
 
   <!-- PANTALLA 3: Resultado y envío -->
   <div id="screen-result">
-    <div class="result-card">
-      <div class="result-score" id="res-score"></div>
-      <div class="result-label" id="res-label"></div>
-      <span class="result-nota" id="res-nota"></span>
-      <div class="result-breakdown">
-        <div class="breakdown-item"><div class="breakdown-num" id="bd-correct"></div><div class="breakdown-lbl">Correctas</div></div>
-        <div class="breakdown-item"><div class="breakdown-num" id="bd-partial"></div><div class="breakdown-lbl">Parciales</div></div>
-        <div class="breakdown-item"><div class="breakdown-num" id="bd-wrong"></div><div class="breakdown-lbl">Incorrectas</div></div>
+    <div class="intro-card" style="text-align:center;padding:3rem 2rem;">
+      <div style="font-size:2.5rem;margin-bottom:1rem;">✓</div>
+      <h2 style="margin-bottom:0.75rem;">¡Gracias, <span id="res-nombre"></span>!</h2>
+      <p style="font-size:15px;color:var(--text-muted);line-height:1.7;">Tu examen fue enviado correctamente.<br>La cátedra se comunicará con vos para informarte tu resultado.</p>
+      <div class="send-status" id="send-status" style="display:none;margin-top:1rem;"></div>
+      <button class="btn btn-primary" id="send-btn" onclick="sendResults()" style="display:none;">Enviar</button>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div id="modal-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:1000;align-items:center;justify-content:center;padding:1rem;">
+    <div style="background:var(--surface);border-radius:var(--r-lg);padding:2rem 1.75rem;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);">
+      <p style="font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-hint);margin-bottom:0.5rem;">Gestión de Personas y Equipos</p>
+      <h3 style="font-family:'DM Serif Display',serif;font-size:1.4rem;font-weight:400;color:var(--text);margin-bottom:0.75rem;">¿Enviás el examen?</h3>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:1.5rem;">Estás a punto de enviar tus respuestas a la cátedra. <strong style="color:var(--text);">Esta acción no se puede deshacer</strong> — no podrás modificar ni reenviar el examen una vez confirmado.</p>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+        <button onclick="confirmYes()" style="flex:1;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;background:var(--accent);color:#fff;border:none;border-radius:var(--r);cursor:pointer;">Sí, enviar examen</button>
+        <button onclick="confirmNo()" style="flex:1;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;background:transparent;color:var(--text-muted);border:1px solid var(--border-strong);border-radius:var(--r);cursor:pointer;">Volver al examen</button>
       </div>
-    </div>
-
-    <div class="send-block">
-      <h3>Enviar resultado a la cátedra</h3>
-      <p>Tus respuestas y puntaje se registrarán en la planilla de la cátedra. El envío es individual y no se puede modificar.</p>
-      <button class="btn btn-primary" id="send-btn" onclick="sendResults()">Enviar mis resultados</button>
-      <div class="send-status" id="send-status"></div>
-    </div>
-
-    <div class="result-actions">
-      <button class="btn btn-ghost" onclick="resetExam()">Volver a hacer el examen</button>
     </div>
   </div>
 
@@ -209,7 +214,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURACIÓN — reemplazá esta URL por la de tu Apps Script deployment
 // ─────────────────────────────────────────────────────────────────────────────
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxpN_W1L2ACkkoxr9H2kc_6JjNKlyXzZ0mnQnVH57rrSoDZ8T0gimG2DjMjP7aW6EHe/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzytpkhHdL9kdIuSEl7EXhEPVNCz3mHJ34bgZMv14_KL0ZjRie4FnvZwvdOYhC_rQt8/exec';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BANCO DE PREGUNTAS
@@ -425,7 +430,7 @@ function renderQuestions() {
         ${tb}
       </div>
       <div class="q-text">${q.q}</div>
-      ${q.multi ? `<div class="multi-hint">Puede haber más de una opción correcta. Seleccioná todas las que aplican y luego confirmá.</div>` : ''}
+      ${q.multi ? `<div class="multi-hint">Puede haber más de una opción correcta. Seleccioná todas las que aplican.</div>` : ''}
       <div class="options">
         ${q.o.map((opt,j) => `
           <div class="opt" id="opt-${i}-${j}" onclick="pickOpt(${i},${j})">
@@ -433,7 +438,7 @@ function renderQuestions() {
             <span>${opt}</span>
           </div>`).join('')}
       </div>
-      ${q.multi ? `<button class="submit-opt-btn" id="sbtn-${i}" onclick="submitMulti(${i})">Confirmar selección</button>` : ''}
+
       <div class="feedback" id="fb-${i}"></div>
     </div>`;
   });
@@ -444,33 +449,40 @@ function renderQuestions() {
 // LÓGICA DE RESPUESTA
 // ─────────────────────────────────────────────────────────────────────────────
 function pickOpt(qi, oi) {
-  if(answered[qi] !== undefined) return;
   const q = Q[qi];
   if(!q.multi) {
-    answered[qi] = [oi];
-    applyResults(qi, new Set([oi]), new Set(q.a));
+    // Única: permite cambiar la selección libremente
+    // Toggle: si ya estaba seleccionada, deseleccionar
+    const yaSeleccionada = answered[qi] && answered[qi][0] === oi;
+    if(yaSeleccionada) {
+      delete answered[qi];
+      for(let j=0; j<q.o.length; j++) {
+        document.getElementById(`opt-${qi}-${j}`).className='opt';
+        document.getElementById(`ind-${qi}-${j}`).innerHTML='';
+      }
+    } else {
+      answered[qi] = [oi];
+      for(let j=0; j<q.o.length; j++) {
+        const el = document.getElementById(`opt-${qi}-${j}`);
+        const ind = document.getElementById(`ind-${qi}-${j}`);
+        if(j === oi) { el.className='opt selected'; ind.innerHTML='✓'; }
+        else { el.className='opt'; ind.innerHTML=''; }
+      }
+    }
     updateProg();
   } else {
+    // Múltiple: toggle libre, se registra automáticamente
     if(!multiSelected[qi]) multiSelected[qi] = new Set();
     const sel = multiSelected[qi];
     const el = document.getElementById(`opt-${qi}-${oi}`);
     const ind = document.getElementById(`ind-${qi}-${oi}`);
     if(sel.has(oi)) { sel.delete(oi); el.className='opt'; ind.innerHTML=''; }
     else { sel.add(oi); el.className='opt selected'; ind.innerHTML='✓'; }
-    const btn = document.getElementById(`sbtn-${qi}`);
-    if(btn) btn.style.display = sel.size > 0 ? 'inline-block' : 'none';
+    // Registrar respuesta automáticamente
+    if(sel.size > 0) answered[qi] = Array.from(sel);
+    else delete answered[qi];
+    updateProg();
   }
-}
-
-function submitMulti(qi) {
-  if(answered[qi] !== undefined) return;
-  const q = Q[qi];
-  const sel = multiSelected[qi] || new Set();
-  answered[qi] = Array.from(sel);
-  const btn = document.getElementById(`sbtn-${qi}`);
-  if(btn) btn.style.display = 'none';
-  applyResults(qi, sel, new Set(q.a));
-  updateProg();
 }
 
 function applyResults(qi, sel, correct) {
@@ -487,12 +499,7 @@ function applyResults(qi, sel, correct) {
     else if(!isS && isC) { el.className='opt reveal disabled'; ind.innerHTML='✓'; allRight=false; }
     else el.className='opt disabled';
   }
-  const perfect = allRight && sel.size === correct.size;
-  const fb = document.getElementById(`fb-${qi}`);
-  if(perfect) { fb.className='feedback ok'; fb.innerHTML='&#10003; Correcto. '+q.f; card.className='q-card correct'; }
-  else if(anyRight && sel.size > 0) { fb.className='feedback partial-ok'; fb.innerHTML='&#9651; Parcialmente correcto. '+q.f; card.className='q-card partial'; }
-  else { fb.className='feedback fail'; fb.innerHTML='&#10007; Incorrecto. '+q.f; card.className='q-card wrong'; }
-  fb.style.display = 'block';
+  // Sin feedback durante el examen — resultados solo al enviar
 }
 
 function getQuestionResult(i) {
@@ -519,30 +526,36 @@ function updateProg() {
 // ─────────────────────────────────────────────────────────────────────────────
 // RESULTADO FINAL
 // ─────────────────────────────────────────────────────────────────────────────
-function showResult() {
-  const total = Q.length;
-  const correct = Object.keys(answered).filter(i => isCorrect(Number(i))).length;
-  const partial = Object.keys(answered).filter(i => isPartial(Number(i))).length;
-  const wrong = Object.keys(answered).filter(i => {
-    const r = getQuestionResult(Number(i));
-    return r === 'incorrecta';
-  }).length;
-  const pct = Math.round(correct / total * 100);
-  let nota = pct>=90?'Sobresaliente':pct>=75?'Muy bueno':pct>=60?'Aprobado':'Revisar contenidos';
-  let nc = pct>=75?'':pct>=60?'repaso':'danger';
+function calcPuntaje() {
+  let pts = 0;
+  Q.forEach((q, i) => {
+    const r = getQuestionResult(i);
+    if(r === 'correcta') pts += 1;
+    else if(r === 'parcial') pts += 0.5;
+  });
+  return Math.round((pts / Q.length) * 100 * 10) / 10;
+}
 
-  document.getElementById('res-score').textContent = `${correct} / ${total}`;
-  document.getElementById('res-label').textContent = `${pct}% de respuestas correctas`;
-  const notaEl = document.getElementById('res-nota');
-  notaEl.textContent = nota;
-  notaEl.className = `result-nota ${nc}`;
-  document.getElementById('bd-correct').textContent = correct;
-  document.getElementById('bd-partial').textContent = partial;
-  document.getElementById('bd-wrong').textContent = wrong;
+function confirmSubmit() {
+  const modal = document.getElementById('modal-overlay');
+  modal.style.display = 'flex';
+}
 
+function confirmNo() {
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+function confirmYes() {
+  document.getElementById('modal-overlay').style.display = 'none';
   document.getElementById('screen-exam').style.display = 'none';
+  document.getElementById('res-nombre').textContent = studentName.split(' ')[0];
   document.getElementById('screen-result').style.display = 'block';
   window.scrollTo({top:0, behavior:'smooth'});
+  sendResults();
+}
+
+function showResult() {
+  // Mantenida por compatibilidad — no se usa directamente
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -557,31 +570,23 @@ function sendResults() {
   st.innerHTML = 'Enviando resultados...';
   st.style.display = 'block';
 
-  const total = Q.length;
-  const correct = Object.keys(answered).filter(i => isCorrect(Number(i))).length;
-  const pct = Math.round(correct/total*100);
+  const puntaje100 = calcPuntaje();
   const now = new Date();
   const timestamp = now.toLocaleDateString('es-AR') + ' ' + now.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
-
-  // Detalle por pregunta
-  const detalles = Q.map((q, i) => {
-    const res = getQuestionResult(i);
-    const selIdx = answered[i] !== undefined
-      ? (Array.isArray(answered[i]) ? answered[i] : [answered[i]])
-      : [];
-    const selTexts = selIdx.map(j => q.o[j].replace(/<[^>]+>/g,'')).join(' | ');
-    return `P${i+1}: ${res} (${selTexts || 'sin responder'})`;
-  }).join('\n');
+  const nota = puntaje100>=90?'Sobresaliente':puntaje100>=75?'Muy bueno':puntaje100>=60?'Aprobado':'Revisar contenidos';
 
   const payload = {
     nombre: studentName,
     email: studentEmail,
     timestamp,
-    puntaje: `${correct}/${total}`,
-    porcentaje: `${pct}%`,
-    nota: pct>=90?'Sobresaliente':pct>=75?'Muy bueno':pct>=60?'Aprobado':'Revisar contenidos',
-    detalle: detalles
+    puntaje: puntaje100,
+    nota
   };
+
+  // Una columna por pregunta
+  Q.forEach((q, i) => {
+    payload['P' + (i+1)] = getQuestionResult(i);
+  });
 
   // Envío via iframe oculto para evitar bloqueos CORS
   const iframe = document.createElement('iframe');
@@ -605,16 +610,16 @@ function sendResults() {
 
   document.body.appendChild(form);
 
-  iframe.onload = function() {
-    resultSent = true;
-    btn.disabled = true;
-    st.className = 'send-status sent';
-    st.innerHTML = '&#10003; Resultado enviado correctamente. La cátedra ya puede verlo en la planilla.';
-    btn.textContent = 'Resultado enviado';
-    document.body.removeChild(form);
-  };
-
+  // Google bloquea X-Frame-Options, iframe.onload no siempre dispara
+  // Usamos timeout como fallback garantizado
   form.submit();
+  setTimeout(function() {
+    resultSent = true;
+    st.className = 'send-status sent';
+    st.style.display = 'none'; // ocultamos el status — la pantalla ya agradece
+    try { document.body.removeChild(form); } catch(e) {}
+    try { document.body.removeChild(iframe); } catch(e) {}
+  }, 2000);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
