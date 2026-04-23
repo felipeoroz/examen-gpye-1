@@ -214,7 +214,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURACIÓN — reemplazá esta URL por la de tu Apps Script deployment
 // ─────────────────────────────────────────────────────────────────────────────
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzytpkhHdL9kdIuSEl7EXhEPVNCz3mHJ34bgZMv14_KL0ZjRie4FnvZwvdOYhC_rQt8/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTbrSOrGpsqRmZ2PSVlkcs5cJVu5nF3KmZuvv7zJzH4AqS5Er9BihQMj8TiTB2O2Y/exec';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BANCO DE PREGUNTAS
@@ -287,8 +287,8 @@ const BANK = [
   {
     d:"medio",multi:true,
     q:"La clase comparó los modelos de trabajo remoto e híbrido. ¿Cuáles afirmaciones sobre su impacto son correctas? (seleccioná todas las que aplican)",
-    o:["El trabajo 100% remoto elimina tiempos y costos de traslado, pero tiene mayor riesgo de aislamiento social","Un estudio de Cisco (2022) indicó que el 76% de trabajadores afirma poder realizar plenamente su trabajo en remoto","La proximidad física (menos de 8 metros de un perfil de alto rendimiento) mejora el desempeño en un 15%","El modelo híbrido genera exactamente los mismos resultados de productividad que el 100% presencial"],
-    a:[0,1,2],f:"Los tres primeros son hallazgos respaldados por el material. El modelo híbrido no replica exactamente el presencial: tiene ventajas propias y desventajas específicas."
+    o:["El trabajo 100% remoto elimina tiempos y costos de traslado, pero tiene mayor riesgo de aislamiento social","El trabajo 100% remoto tiende a generar mayor dificultad para el <em>onboarding</em> (incorporación) y la integración de nuevos empleados","La proximidad física (menos de 8 metros de un perfil de alto rendimiento) mejora el desempeño en un 15%","El modelo híbrido genera exactamente los mismos resultados de productividad que el 100% presencial"],
+    a:[0,1,2],f:"Las tres primeras afirmaciones son correctas. El modelo híbrido no replica exactamente el presencial: tiene ventajas propias (equilibrio, foco individual) y desventajas específicas (complejidad logística, costos de traslado parciales)."
   },
   {
     d:"medio",multi:false,
@@ -359,6 +359,33 @@ let resultSent = false;
 // ─────────────────────────────────────────────────────────────────────────────
 // SHUFFLE
 // ─────────────────────────────────────────────────────────────────────────────
+function shuffleArray(arr) {
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildQ() {
+  // Separar por bloque, mezclar orden dentro de cada bloque, luego mezclar opciones
+  const basic  = shuffleArray(BANK.filter(q => q.d === 'basic'));
+  const medio  = shuffleArray(BANK.filter(q => q.d === 'medio'));
+  const avanzado = shuffleArray(BANK.filter(q => q.d === 'avanzado'));
+  // Preservar la etiqueta de sección solo en la primera pregunta de cada bloque
+  const blocks = [basic, medio, avanzado];
+  const result = [];
+  blocks.forEach(block => {
+    block.forEach((q, i) => {
+      const qCopy = {...q};
+      if(i > 0) delete qCopy.s; // solo la primera del bloque lleva el título de sección
+      result.push(shuffleQ(qCopy));
+    });
+  });
+  return result;
+}
+
 function shuffleQ(q) {
   const indices = q.o.map((_,i)=>i);
   for(let i=indices.length-1;i>0;i--){
@@ -396,7 +423,7 @@ function startExam() {
   studentName = nameEl.value.trim();
   studentEmail = emailEl.value.trim();
 
-  Q = BANK.map(shuffleQ);
+  Q = buildQ();
   answered = {}; multiSelected = {}; resultSent = false;
 
   document.getElementById('student-banner').innerHTML =
@@ -573,7 +600,7 @@ function sendResults() {
   const puntaje100 = calcPuntaje();
   const now = new Date();
   const timestamp = now.toLocaleDateString('es-AR') + ' ' + now.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
-  const nota = puntaje100>=90?'Sobresaliente':puntaje100>=75?'Muy bueno':puntaje100>=60?'Aprobado':'Revisar contenidos';
+  const nota = puntaje100>=60?'Aprobado':'Desaprobado';
 
   const payload = {
     nombre: studentName,
@@ -583,10 +610,23 @@ function sendResults() {
     nota
   };
 
-  // Una columna por pregunta
+  // Una columna por pregunta: resultado
   Q.forEach((q, i) => {
     payload['P' + (i+1)] = getQuestionResult(i);
   });
+
+  // Detalle completo para el email: pregunta + opción elegida + resultado
+  const detalleEmail = Q.map((q, i) => {
+    const res = getQuestionResult(i);
+    const selIdx = answered[i] !== undefined
+      ? (Array.isArray(answered[i]) ? answered[i] : [answered[i]])
+      : [];
+    const selTexts = selIdx.map(j => q.o[j].replace(/<[^>]+>/g, '')).join(' | ');
+    const pregunta = q.q.replace(/<[^>]+>/g, '');
+    return (i+1) + '. ' + pregunta + '\nRespuesta elegida: ' + (selTexts || 'Sin responder') + '\nResultado: ' + res;
+  }).join('\n\n');
+
+  payload['detalle_email'] = detalleEmail;
 
   // Envío via iframe oculto para evitar bloqueos CORS
   const iframe = document.createElement('iframe');
@@ -627,7 +667,7 @@ function sendResults() {
 // ─────────────────────────────────────────────────────────────────────────────
 function resetExam() {
   answered = {}; multiSelected = {}; resultSent = false;
-  Q = BANK.map(shuffleQ);
+  Q = buildQ();
   document.getElementById('screen-result').style.display = 'none';
   document.getElementById('screen-exam').style.display = 'none';
   document.getElementById('screen-intro').style.display = 'block';
