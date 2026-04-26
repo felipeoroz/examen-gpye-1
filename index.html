@@ -562,7 +562,7 @@ function updateProg() {
   const done = Object.keys(answered).length;
   const correct = Object.keys(answered).filter(i => isCorrect(i)).length;
   document.getElementById('prog-label').textContent = `${done} de ${Q.length} respondidas`;
-  document.getElementById('score-live').textContent = done > 0 ? `${correct} correctas` : '';
+  document.getElementById('score-live').textContent = '';
   document.getElementById('bar').style.width = `${Math.round(done/Q.length*100)}%`;
 }
 
