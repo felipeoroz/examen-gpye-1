@@ -185,12 +185,28 @@
 
   <!-- PANTALLA 3: Resultado y envío -->
   <div id="screen-result">
-    <div class="intro-card" style="text-align:center;padding:3rem 2rem;">
+    <!-- Estado: enviando -->
+    <div id="state-sending" class="intro-card" style="text-align:center;padding:3rem 2rem;">
+      <div style="font-size:2rem;margin-bottom:1rem;color:var(--info-text);">&#8987;</div>
+      <h2 style="margin-bottom:0.75rem;">Enviando examen...</h2>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">Por favor no cierres esta pantalla.</p>
+      <p style="font-size:12px;color:var(--text-hint);margin-top:0.5rem;" id="retry-label"></p>
+    </div>
+    <!-- Estado: éxito -->
+    <div id="state-ok" class="intro-card" style="text-align:center;padding:3rem 2rem;display:none;">
       <div style="font-size:2.5rem;margin-bottom:1rem;">✓</div>
       <h2 style="margin-bottom:0.75rem;">¡Gracias, <span id="res-nombre"></span>!</h2>
-      <p style="font-size:15px;color:var(--text-muted);line-height:1.7;">Tu examen fue enviado correctamente.<br>La cátedra se comunicará con vos para informarte tu resultado.</p>
-      <div class="send-status" id="send-status" style="display:none;margin-top:1rem;"></div>
-      <button class="btn btn-primary" id="send-btn" onclick="sendResults()" style="display:none;">Enviar</button>
+      <p style="font-size:15px;color:var(--text-muted);line-height:1.7;">Tu examen fue registrado correctamente.<br>La cátedra se comunicará con vos para informarte tu resultado.</p>
+    </div>
+    <!-- Estado: error con fallback PDF -->
+    <div id="state-error" class="intro-card" style="text-align:center;padding:3rem 2rem;display:none;">
+      <div style="font-size:2rem;margin-bottom:1rem;color:var(--danger);">&#10007;</div>
+      <h2 style="margin-bottom:0.75rem;">No se pudo enviar</h2>
+      <p style="font-size:14px;color:var(--text-muted);line-height:1.7;margin-bottom:1.5rem;">Hubo un problema de conexión. Podés reintentar o guardar tu examen en PDF y enviarlo a la cátedra.</p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="retrySend()">Reintentar envío</button>
+        <button class="btn btn-ghost" onclick="downloadPDF()">Guardar como PDF</button>
+      </div>
     </div>
   </div>
 
@@ -214,7 +230,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIGURACIÓN — reemplazá esta URL por la de tu Apps Script deployment
 // ─────────────────────────────────────────────────────────────────────────────
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeNaSpRAAufcRyM7zp5yLLUVlrQLQH47ve7OE2Vld10x-5zDKGy0LIPkx7acK1ekZ0/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQOodSKeRGCaTG3A3m29QGB-csqywaQYIaJ3ubp8z2OSFhRZnYli9my9Ctw9hTC4xu/exec';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BANCO DE PREGUNTAS
@@ -560,7 +576,7 @@ function calcPuntaje() {
     if(r === 'correcta') pts += 1;
     else if(r === 'parcial') pts += 0.5;
   });
-  return Math.round((pts / Q.length) * 100 * 10) / 10;
+  return parseFloat(((pts / Q.length) * 100).toFixed(1));
 }
 
 function confirmSubmit() {
@@ -586,80 +602,106 @@ function showResult() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ENVÍO A GOOGLE SHEETS
+// ENVÍO A GOOGLE SHEETS — fetch + reintentos + fallback PDF
 // ─────────────────────────────────────────────────────────────────────────────
-function sendResults() {
-  if(resultSent) return;
-  const btn = document.getElementById('send-btn');
-  const st = document.getElementById('send-status');
-  btn.disabled = true;
-  st.className = 'send-status sending';
-  st.innerHTML = 'Enviando resultados...';
-  st.style.display = 'block';
+let currentPayload = null;
+let sendAttempt = 0;
+const MAX_ATTEMPTS = 3;
 
+function buildPayload() {
   const puntaje100 = calcPuntaje();
   const now = new Date();
   const timestamp = now.toLocaleDateString('es-AR') + ' ' + now.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
   const nota = puntaje100>=60?'Aprobado':'Desaprobado';
-
-  const payload = {
-    nombre: studentName,
-    email: studentEmail,
-    timestamp,
-    puntaje: puntaje100,
-    nota
-  };
-
-  // Una columna por pregunta: resultado
-  Q.forEach((q, i) => {
-    payload['P' + (i+1)] = getQuestionResult(i);
-  });
-
-  // Detalle completo para el email: pregunta + opción elegida + resultado
+  const payload = { nombre: studentName, email: studentEmail, timestamp, puntaje: puntaje100, nota };
+  Q.forEach((q, i) => { payload['P' + (i+1)] = getQuestionResult(i); });
   const detalleEmail = Q.map((q, i) => {
     const res = getQuestionResult(i);
-    const selIdx = answered[i] !== undefined
-      ? (Array.isArray(answered[i]) ? answered[i] : [answered[i]])
-      : [];
+    const selIdx = answered[i] !== undefined ? (Array.isArray(answered[i]) ? answered[i] : [answered[i]]) : [];
     const selTexts = selIdx.map(j => q.o[j].replace(/<[^>]+>/g, '')).join(' | ');
     const pregunta = q.q.replace(/<[^>]+>/g, '');
     return (i+1) + '. ' + pregunta + '\nRespuesta elegida: ' + (selTexts || 'Sin responder') + '\nResultado: ' + res;
   }).join('\n\n');
-
   payload['detalle_email'] = detalleEmail;
+  return payload;
+}
 
-  // Envío via iframe oculto para evitar bloqueos CORS
-  const iframe = document.createElement('iframe');
-  iframe.name = 'hidden_iframe_gpye';
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
+function sendResults() {
+  if(resultSent) return;
+  currentPayload = buildPayload();
+  sendAttempt = 0;
+  attemptSend();
+}
 
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = APPS_SCRIPT_URL;
-  form.target = 'hidden_iframe_gpye';
-  form.style.display = 'none';
+function retrySend() {
+  document.getElementById('state-error').style.display = 'none';
+  document.getElementById('state-sending').style.display = 'block';
+  sendAttempt = 0;
+  attemptSend();
+}
 
-  Object.keys(payload).forEach(key => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = String(payload[key]);
-    form.appendChild(input);
-  });
+function attemptSend() {
+  sendAttempt++;
+  const label = document.getElementById('retry-label');
+  if(label) label.textContent = sendAttempt > 1 ? 'Intento ' + sendAttempt + ' de ' + MAX_ATTEMPTS + '...' : '';
 
-  document.body.appendChild(form);
+  const formData = new FormData();
+  Object.keys(currentPayload).forEach(k => formData.append(k, String(currentPayload[k])));
 
-  // Google bloquea X-Frame-Options, iframe.onload no siempre dispara
-  // Usamos timeout como fallback garantizado
-  form.submit();
-  setTimeout(function() {
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    body: formData
+  })
+  .then(function(response) {
+    if(response.ok || response.type === 'opaqueredirect' || response.status === 0) {
+      return response.text().catch(() => 'ok');
+    }
+    throw new Error('HTTP ' + response.status);
+  })
+  .then(function() {
     resultSent = true;
-    st.className = 'send-status sent';
-    st.style.display = 'none'; // ocultamos el status — la pantalla ya agradece
-    try { document.body.removeChild(form); } catch(e) {}
-    try { document.body.removeChild(iframe); } catch(e) {}
-  }, 2000);
+    document.getElementById('state-sending').style.display = 'none';
+    document.getElementById('res-nombre').textContent = studentName.split(' ')[0];
+    document.getElementById('state-ok').style.display = 'block';
+  })
+  .catch(function(err) {
+    if(sendAttempt < MAX_ATTEMPTS) {
+      const delay = sendAttempt * 2000;
+      if(label) label.textContent = 'Reintentando en ' + (delay/1000) + ' segundos... (' + sendAttempt + '/' + MAX_ATTEMPTS + ')';
+      setTimeout(attemptSend, delay);
+    } else {
+      document.getElementById('state-sending').style.display = 'none';
+      document.getElementById('state-error').style.display = 'block';
+    }
+  });
+}
+
+function downloadPDF() {
+  const p = currentPayload;
+  const lines = [
+    'EXAMEN GPyE — UNIDADES 1 A 3',
+    'CDO · FCE-UNLP',
+    '',
+    'Alumno/a: ' + (p.nombre || ''),
+    'Email: ' + (p.email || ''),
+    'Fecha: ' + (p.timestamp || ''),
+    'Puntaje: ' + (p.puntaje || '') + ' / 100',
+    'Resultado: ' + (p.nota || ''),
+    '',
+    '─────────────────────────────────',
+    'DETALLE DE RESPUESTAS',
+    '─────────────────────────────────',
+    '',
+    p.detalle_email || ''
+  ];
+  const texto = lines.join('\n');
+  const blob = new Blob([texto], {type: 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'examen_gpye_' + (p.nombre || 'alumno').replace(/ /g,'_') + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
