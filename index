@@ -1,0 +1,436 @@
+<h2 class="sr-only">Guía del alumno — Sprint simulado Fintechify · GPyE 2026 · Clase 9</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.root{padding:.5rem 0 2rem;font-family:var(--font-sans)}
+.steps{display:flex;gap:0;margin-bottom:1.25rem;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);overflow:hidden}
+.sp{flex:1;padding:9px 4px;text-align:center;cursor:pointer;background:var(--color-background-secondary);border-right:.5px solid var(--color-border-secondary);transition:background .12s;user-select:none}
+.sp:last-child{border-right:none}
+.sp.on{background:var(--color-background-primary)}
+.sp-n{font-size:10px;font-weight:500;font-family:var(--font-mono);color:var(--color-text-tertiary);margin-bottom:2px}
+.sp-l{font-size:10px;color:var(--color-text-secondary);line-height:1.2}
+.sp.on .sp-n{color:var(--act)}
+.sp.on .sp-l{font-weight:500;color:var(--color-text-primary)}
+.panel{display:none}.panel.on{display:block}
+.hdr{border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:12px}
+.hdr-ey{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-mono);margin-bottom:5px}
+.hdr-ti{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;line-height:1.2}
+.hdr-me{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hdr-q{font-size:11px;color:var(--color-text-tertiary);font-style:italic}
+.tw{display:flex;align-items:center;gap:10px;background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;margin-bottom:12px}
+.td{font-size:26px;font-weight:500;font-family:var(--font-mono);color:var(--color-text-primary);min-width:58px;letter-spacing:.04em}
+.td.urg{color:var(--color-text-danger)}
+.tl{font-size:11px;color:var(--color-text-secondary);flex:1;line-height:1.4}
+.tb2{display:flex;gap:6px}
+.bt{padding:6px 11px;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font-sans);color:var(--color-text-secondary);transition:all .12s}
+.bt:hover{background:var(--color-background-secondary)}
+.bt.go{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent}
+.card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:10px}
+.sm{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:8px}
+.sec{font-size:10px;font-weight:500;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-tertiary);margin:0 0 10px}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.tip{display:flex;gap:9px;align-items:flex-start;margin-bottom:8px}
+.ti{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;flex-shrink:0;margin-top:1px}
+.tb{font-size:12px;color:var(--color-text-secondary);line-height:1.6;flex:1}
+.tb strong{color:var(--color-text-primary);font-weight:500}
+.ci{background:var(--color-background-info);border-left:3px solid var(--color-text-info);padding:10px 13px;margin:10px 0;font-size:12px;color:var(--color-text-info);line-height:1.6;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.cg{background:var(--color-background-success);border-left:3px solid var(--color-text-success);padding:10px 13px;margin:10px 0;font-size:12px;color:var(--color-text-success);line-height:1.6;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.cw{background:var(--color-background-warning);border-left:3px solid var(--color-text-warning);padding:10px 13px;margin:10px 0;font-size:12px;color:var(--color-text-warning);line-height:1.6;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.cr{background:var(--color-background-danger);border-left:3px solid var(--color-text-danger);padding:10px 13px;margin:10px 0;font-size:12px;color:var(--color-text-danger);line-height:1.6;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0}
+.ci strong,.cg strong,.cw strong,.cr strong{color:inherit;font-weight:500}
+.pill{display:inline-flex;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500;font-family:var(--font-mono);margin:2px}
+.p-b{background:var(--color-background-info);color:var(--color-text-info)}
+.p-g{background:var(--color-background-success);color:var(--color-text-success)}
+.p-s{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.p-a{background:var(--color-background-warning);color:var(--color-text-warning)}
+.q3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.qcard{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:11px 12px}
+.qnum{font-size:10px;font-weight:500;font-family:var(--font-mono);color:var(--color-text-tertiary);margin-bottom:4px}
+.qtxt{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;line-height:1.35}
+.qhint{font-size:11px;color:var(--color-text-secondary);line-height:1.4;font-style:italic}
+.story{border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:7px;display:flex;gap:10px;align-items:flex-start}
+.spts{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.stit{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px;line-height:1.35}
+.sac{font-size:11px;color:var(--color-text-tertiary);line-height:1.4;margin-bottom:5px}
+.sinput{width:52px;border:.5px solid var(--color-border-secondary);border-radius:4px;padding:2px 6px;font-size:11px;font-family:var(--font-mono);background:var(--color-background-primary);color:var(--color-text-primary);text-align:center}
+.bl-row{display:flex;gap:8px;align-items:center;padding:8px 10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:5px}
+.bl-row input[type=text]{flex:1;border:none;background:transparent;font-size:12px;font-family:var(--font-sans);color:var(--color-text-primary)}
+.rgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.rcol{border-radius:var(--border-radius-md);padding:11px}
+.rlbl{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.rtxt{width:100%;border:.5px solid var(--color-border-secondary);border-radius:6px;padding:7px 8px;font-size:11px;font-family:var(--font-sans);color:var(--color-text-primary);resize:vertical;min-height:56px;margin-bottom:4px;background:var(--color-background-primary)}
+.rtxt:focus{outline:none;border-color:var(--color-border-primary)}
+.nav{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:.5px solid var(--color-border-tertiary)}
+.nbtn{flex:1;padding:10px;border:none;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans);transition:opacity .12s}
+.nbtn:hover{opacity:.85}
+.pbtn{padding:10px 16px;background:var(--color-background-secondary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
+.pbtn:disabled{opacity:.3;pointer-events:none}
+textarea{font-family:var(--font-sans)}
+@media(max-width:520px){.q3,.row,.rgrid{grid-template-columns:1fr}.steps{flex-wrap:wrap}.sp{min-width:30%}}
+</style>
+
+<div class="root">
+<div class="steps" id="pills">
+  <div class="sp on" style="--act:var(--color-text-secondary)" onclick="go(0)"><div class="sp-n">Inicio</div><div class="sp-l">Contexto</div></div>
+  <div class="sp" style="--act:var(--color-text-info)" onclick="go(1)"><div class="sp-n">1 · 10'</div><div class="sp-l">Standup</div></div>
+  <div class="sp" style="--act:var(--color-text-warning)" onclick="go(2)"><div class="sp-n">2 · 15'</div><div class="sp-l">Backlog</div></div>
+  <div class="sp" style="--act:var(--color-text-success)" onclick="go(3)"><div class="sp-n">3 · 20'</div><div class="sp-l">Planning</div></div>
+  <div class="sp" style="--act:var(--color-text-secondary)" onclick="go(4)"><div class="sp-n">4 · 10'</div><div class="sp-l">Demo</div></div>
+  <div class="sp" style="--act:var(--color-text-danger)" onclick="go(5)"><div class="sp-n">5 · 15'</div><div class="sp-l">Retro</div></div>
+</div>
+
+<!-- 0 CONTEXTO -->
+<div class="panel on" id="p0">
+  <div class="hdr" style="background:var(--color-background-secondary)">
+    <p class="hdr-ey" style="color:var(--color-text-secondary)">GPyE 2026 · Clase 9 · Working like an agile team</p>
+    <p class="hdr-ti">Sprint simulado · Fintechify</p>
+    <p class="hdr-me">5 ceremonias ágiles · dataset Fintechify · Rose, caps. 4 y 7</p>
+    <p class="hdr-q">"A small, stable group dedicated to one product, focused on the highest-priority items." — Doug Rose</p>
+  </div>
+
+  <div class="card">
+    <p class="sec">El contexto</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7">Fintechify acaba de cerrar una inversión <strong style="color:var(--color-text-primary)">Serie B</strong>. El CEO quiere lanzar en <strong style="color:var(--color-text-primary)">2 semanas</strong> un sistema de detección de fraude en tiempo real. Tu squad es el equipo responsable. Hoy es el <strong style="color:var(--color-text-primary)">día 1 del sprint</strong>.</p>
+  </div>
+
+  <div class="card">
+    <p class="sec">Primero — asignar los roles (5 min, entre ustedes)</p>
+    <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:10px">Rose es claro: <strong style="color:var(--color-text-primary)">el equipo asigna los roles, no el manager</strong>. Eso ya es la primera práctica de auto-organización.</p>
+    <div class="tip"><div class="ti" style="background:var(--color-background-info);color:var(--color-text-info)">PO</div><div class="tb"><strong>Product Owner (1 persona)</strong> — decide qué entra al sprint. Presenta el trabajo al stakeholder.</div></div>
+    <div class="tip"><div class="ti" style="background:var(--color-background-success);color:var(--color-text-success)">SM</div><div class="tb"><strong>Scrum Master (1 persona)</strong> — facilita cada ceremonia, cronometra, anota bloqueos. No resuelve en el momento.</div></div>
+    <div class="tip"><div class="ti" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">Dev</div><div class="tb"><strong>Dev Team (el resto)</strong> — estima, se compromete con las stories, muestra el trabajo.</div></div>
+    <div class="cw"><strong>Si nadie quiere un rol:</strong> el SM lo decide con una moneda. Alguien tiene que dar el paso.</div>
+  </div>
+
+  <div class="nav">
+    <button class="pbtn" disabled>← Anterior</button>
+    <button class="nbtn" style="background:var(--color-background-info);color:var(--color-text-info)" onclick="go(1)">Actividad 1 — Daily standup →</button>
+  </div>
+</div>
+
+<!-- 1 STANDUP -->
+<div class="panel" id="p1">
+  <div class="hdr" style="background:var(--color-background-info)">
+    <p class="hdr-ey" style="color:var(--color-text-info)">Actividad 1 · Daily standup</p>
+    <p class="hdr-ti">El standup de hoy</p>
+    <p class="hdr-me"><span class="pill p-g">SM facilita</span><span class="pill p-a">todos participan</span><span>10 min · de pie · sin laptops</span></p>
+    <p class="hdr-q">"El standup no es un reporte al manager — es sincronización entre pares." — Rose, cap. 7</p>
+  </div>
+
+  <div class="tw">
+    <div class="td" id="t1">10:00</div>
+    <div class="tl">Tiempo total del standup<br><span style="font-size:10px;color:var(--color-text-tertiary)">Máx. 2 min por persona · el SM corta si se pasa</span></div>
+    <div class="tb2">
+      <button class="bt go" onclick="startT(1,600)">▶ Iniciar</button>
+      <button class="bt" onclick="resetT(1,'10:00')">↺</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="sec">Las 3 preguntas — cada persona responde en voz alta</p>
+    <div class="q3">
+      <div class="qcard">
+        <p class="qnum">Pregunta 1</p>
+        <p class="qtxt">¿Qué hice ayer hacia el objetivo del sprint?</p>
+        <p class="qhint">Si es el día 1, contá en qué estabas antes del sprint.</p>
+      </div>
+      <div class="qcard">
+        <p class="qnum">Pregunta 2</p>
+        <p class="qtxt">¿Qué voy a hacer hoy?</p>
+        <p class="qhint">Específico: "explorar el dataset" — no "trabajar en datos".</p>
+      </div>
+      <div class="qcard">
+        <p class="qnum">Pregunta 3</p>
+        <p class="qtxt">¿Tengo algún impedimento?</p>
+        <p class="qhint">Algo que te frena. Si no hay nada: "sin impedimentos".</p>
+      </div>
+    </div>
+    <div class="cr"><strong>El SM anota los bloqueos</strong> y los resuelve después del standup — no durante.</div>
+  </div>
+
+  <div class="card">
+    <p class="sec">Bloqueos detectados — SM los registra acá</p>
+    <textarea style="width:100%;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 10px;font-size:12px;min-height:52px;background:var(--color-background-secondary);color:var(--color-text-primary);resize:vertical" placeholder="Ej: Sofía necesita acceso al dataset de producción — gestionar hoy con infra."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="pbtn" onclick="go(0)">← Anterior</button>
+    <button class="nbtn" style="background:var(--color-background-warning);color:var(--color-text-warning)" onclick="go(2)">Actividad 2 — Backlog refinement →</button>
+  </div>
+</div>
+
+<!-- 2 BACKLOG -->
+<div class="panel" id="p2">
+  <div class="hdr" style="background:var(--color-background-warning)">
+    <p class="hdr-ey" style="color:var(--color-text-warning)">Actividad 2 · Backlog refinement</p>
+    <p class="hdr-ti">Estimar las user stories</p>
+    <p class="hdr-me"><span class="pill p-b">PO presenta</span><span class="pill p-s">Dev Team estima</span><span class="pill p-g">SM facilita</span><span>15 min</span></p>
+    <p class="hdr-q">"Si no podés estimarla, la story no está lista." — Rose, cap. 5</p>
+  </div>
+
+  <div class="tw">
+    <div class="td" id="t2">15:00</div>
+    <div class="tl">Tiempo del refinement<br><span style="font-size:10px;color:var(--color-text-tertiary)">~2 min por story · Planning Poker para estimar</span></div>
+    <div class="tb2">
+      <button class="bt go" onclick="startT(2,900)">▶ Iniciar</button>
+      <button class="bt" onclick="resetT(2,'15:00')">↺</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="sec">Planning Poker — pasos</p>
+    <div class="tip"><div class="ti" style="background:var(--color-background-info);color:var(--color-text-info)">1</div><div class="tb">PO lee la story. Dev Team hace preguntas. Máx. 2 min.</div></div>
+    <div class="tip"><div class="ti" style="background:var(--color-background-info);color:var(--color-text-info)">2</div><div class="tb">Todos escriben su estimación en papel sin mostrarla. Valores: <strong>1 · 2 · 3 · 5 · 8 · 13 · 21</strong></div></div>
+    <div class="tip"><div class="ti" style="background:var(--color-background-info);color:var(--color-text-info)">3</div><div class="tb">Revelan simultáneo. Consenso → ese número. Dispersión → los outliers explican y votan de nuevo.</div></div>
+    <div class="tip"><div class="ti" style="background:var(--color-background-info);color:var(--color-text-info)">4</div><div class="tb">Máximo 2 rondas. Sin consenso → el SM decide.</div></div>
+  </div>
+
+  <div class="card">
+    <p class="sec">Las 6 stories — anotá la estimación del squad</p>
+
+    <div class="story">
+      <div class="spts" style="background:var(--color-background-info);color:var(--color-text-info)">?</div>
+      <div style="flex:1">
+        <p class="stit">Como analista, quiero ver transacciones sospechosas en tiempo real para revisarlas antes de que se procesen.</p>
+        <p class="sac">Actualización en menos de 5 seg · score de riesgo visible · permite aprobar/rechazar</p>
+        <span style="font-size:11px;color:var(--color-text-tertiary)">Estimación: </span><input class="sinput" type="text" placeholder="pts"/>
+      </div>
+    </div>
+
+    <div class="story">
+      <div class="spts" style="background:var(--color-background-warning);color:var(--color-text-warning)">?</div>
+      <div style="flex:1">
+        <p class="stit">Como PO, quiero que el modelo clasifique transacciones con más del 85% de precisión antes de producción.</p>
+        <p class="sac">Evaluado en los últimos 90 días · precision ≥ 85% y recall ≥ 80% · documentado</p>
+        <span style="font-size:11px;color:var(--color-text-tertiary)">Estimación: </span><input class="sinput" type="text" placeholder="pts"/>
+      </div>
+    </div>
+
+    <div class="story">
+      <div class="spts" style="background:var(--color-background-success);color:var(--color-text-success)">?</div>
+      <div style="flex:1">
+        <p class="stit">Como analista, quiero recibir una alerta por Slack cuando una transacción supere el umbral de riesgo.</p>
+        <p class="sac">Alerta en menos de 30 seg · link directo al caso · configurable</p>
+        <span style="font-size:11px;color:var(--color-text-tertiary)">Estimación: </span><input class="sinput" type="text" placeholder="pts"/>
+      </div>
+    </div>
+
+    <div class="story">
+      <div class="spts" style="background:var(--color-background-danger);color:var(--color-text-danger)">?</div>
+      <div style="flex:1">
+        <p class="stit">Como CFO, quiero un reporte semanal del impacto económico del fraude para justificar la inversión ante el board.</p>
+        <p class="sac">Fraudes detectados vs. no detectados · pérdidas evitadas · exportable a PDF · automatizado</p>
+        <span style="font-size:11px;color:var(--color-text-tertiary)">Estimación: </span><input class="sinput" type="text" placeholder="pts"/>
+      </div>
+    </div>
+
+    <div class="story">
+      <div class="spts" style="background:var(--color-background-info);color:var(--color-text-info)">?</div>
+      <div style="flex:1">
+        <p class="stit">Como Data Engineer, quiero documentar el pipeline de ingesta para que cualquier miembro pueda mantenerlo sin mi asistencia.</p>
+        <p class="sac">En la wiki interna · diagrama de flujo · revisada por un compañero</p>
+        <span style="font-size:11px;color:var(--color-text-tertiary)">Estimación: </span><input class="sinput" type="text" placeholder="pts"/>
+      </div>
+    </div>
+
+    <div class="story">
+      <div class="spts" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">?</div>
+      <div style="flex:1">
+        <p class="stit">Como CTO, quiero que el sistema procese 10.000 transacciones por minuto sin degradación del tiempo de respuesta.</p>
+        <p class="sac">Benchmarked con carga simulada · p95 de latencia bajo 200ms · plan de escalamiento</p>
+        <span style="font-size:11px;color:var(--color-text-tertiary)">Estimación: </span><input class="sinput" type="text" placeholder="pts"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="pbtn" onclick="go(1)">← Anterior</button>
+    <button class="nbtn" style="background:var(--color-background-success);color:var(--color-text-success)" onclick="go(3)">Actividad 3 — Sprint planning →</button>
+  </div>
+</div>
+
+<!-- 3 PLANNING -->
+<div class="panel" id="p3">
+  <div class="hdr" style="background:var(--color-background-success)">
+    <p class="hdr-ey" style="color:var(--color-text-success)">Actividad 3 · Sprint planning</p>
+    <p class="hdr-ti">¿Qué entra al sprint?</p>
+    <p class="hdr-me"><span class="pill p-b">PO prioriza</span><span class="pill p-s">Dev Team se compromete</span><span class="pill p-g">SM cierra</span><span>20 min</span></p>
+    <p class="hdr-q">"El PO trae las prioridades. El equipo trae la capacidad. Juntos arman el sprint backlog." — Rose, cap. 5</p>
+  </div>
+
+  <div class="tw">
+    <div class="td" id="t3">20:00</div>
+    <div class="tl">Tiempo del sprint planning<br><span style="font-size:10px;color:var(--color-text-tertiary)">Velocidad del squad: <strong>12 puntos</strong> por sprint</span></div>
+    <div class="tb2">
+      <button class="bt go" onclick="startT(3,1200)">▶ Iniciar</button>
+      <button class="bt" onclick="resetT(3,'20:00')">↺</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="sec">Consigna</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.65">Con las estimaciones del backlog, armá un sprint backlog que <strong style="color:var(--color-text-primary)">no supere 12 puntos</strong>. El SM cierra el planning leyendo el backlog en voz alta y el squad dice en conjunto: <strong style="color:var(--color-text-primary)">"Nos comprometemos a entregar esto."</strong></p>
+  </div>
+
+  <div class="card">
+    <p class="sec">Sprint backlog — stories comprometidas</p>
+    <div id="sbl">
+      <div class="bl-row"><input type="checkbox" style="width:15px;height:15px;accent-color:var(--color-text-success);flex-shrink:0"/><input type="text" placeholder="Story elegida..."/><input type="text" class="sinput" placeholder="pts"/></div>
+      <div class="bl-row"><input type="checkbox" style="width:15px;height:15px;accent-color:var(--color-text-success);flex-shrink:0"/><input type="text" placeholder="Story elegida..."/><input type="text" class="sinput" placeholder="pts"/></div>
+      <div class="bl-row"><input type="checkbox" style="width:15px;height:15px;accent-color:var(--color-text-success);flex-shrink:0"/><input type="text" placeholder="Story elegida..."/><input type="text" class="sinput" placeholder="pts"/></div>
+      <div class="bl-row"><input type="checkbox" style="width:15px;height:15px;accent-color:var(--color-text-success);flex-shrink:0"/><input type="text" placeholder="Story elegida..."/><input type="text" class="sinput" placeholder="pts"/></div>
+    </div>
+    <div style="text-align:right;margin-top:8px;font-size:12px;color:var(--color-text-secondary)">
+      Total: <strong id="tot" style="color:var(--color-text-primary)">0</strong> / 12 pts
+    </div>
+    <div class="cg" style="margin-top:10px"><strong>Cuando lleguen a 12:</strong> el SM lee todo en voz alta → el squad dice "nos comprometemos" → planning cerrado.</div>
+  </div>
+
+  <div class="nav">
+    <button class="pbtn" onclick="go(2)">← Anterior</button>
+    <button class="nbtn" style="background:var(--color-background-secondary);color:var(--color-text-secondary);border:.5px solid var(--color-border-secondary)" onclick="go(4)">Actividad 4 — Sprint demo →</button>
+  </div>
+</div>
+
+<!-- 4 DEMO -->
+<div class="panel" id="p4">
+  <div class="hdr" style="background:var(--color-background-secondary)">
+    <p class="hdr-ey" style="color:var(--color-text-secondary)">Actividad 4 · Sprint demo</p>
+    <p class="hdr-ti">Mostrar lo que construimos</p>
+    <p class="hdr-me"><span class="pill p-b">PO presenta</span><span class="pill p-s">Dev Team muestra</span><span>10 min · stakeholder = docente</span></p>
+    <p class="hdr-q">"No es un PowerPoint — es algo que el stakeholder puede ver, tocar y reaccionar." — Rose, cap. 7</p>
+  </div>
+
+  <div class="tw">
+    <div class="td" id="t4">10:00</div>
+    <div class="tl">Tiempo del sprint demo<br><span style="font-size:10px;color:var(--color-text-tertiary)">El docente puede interrumpir y preguntar en cualquier momento</span></div>
+    <div class="tb2">
+      <button class="bt go" onclick="startT(4,600)">▶ Iniciar</button>
+      <button class="bt" onclick="resetT(4,'10:00')">↺</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="sec">Consigna para el PO</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.65">Presentá las stories comprometidas como si fueran el producto real. Mostrá <strong style="color:var(--color-text-primary)">algo tangible</strong>: un mockup en papel, una query corriendo, un output en Claude, o una descripción detallada. <strong style="color:var(--color-text-primary)">No te defiendas del feedback</strong> — escuchá. Lo que incomoda al stakeholder hoy es la story del próximo sprint.</p>
+  </div>
+
+  <div class="card">
+    <p class="sec">El docente puede preguntarte esto — preparate</p>
+    <div class="tip"><div class="ti" style="background:var(--color-background-danger);color:var(--color-text-danger)">?</div><div class="tb">"¿El modelo puede distinguir fraude real de un turista que usó la tarjeta en el exterior?"</div></div>
+    <div class="tip"><div class="ti" style="background:var(--color-background-danger);color:var(--color-text-danger)">?</div><div class="tb">"¿Cuántos falsos positivos tiene? ¿Qué pasa cuando bloqueo la tarjeta de alguien que no hizo fraude?"</div></div>
+    <div class="tip"><div class="ti" style="background:var(--color-background-danger);color:var(--color-text-danger)">?</div><div class="tb">"¿Por qué no hicieron el reporte del CFO? Era la prioridad más alta para mí."</div></div>
+    <div class="tip"><div class="ti" style="background:var(--color-background-danger);color:var(--color-text-danger)">?</div><div class="tb">"¿Puedo mostrar esto al board el viernes tal como está?"</div></div>
+  </div>
+
+  <div class="card">
+    <p class="sec">Feedback del stakeholder — anotá todo, es tu próximo backlog</p>
+    <textarea style="width:100%;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 10px;font-size:12px;min-height:60px;background:var(--color-background-secondary);color:var(--color-text-primary);resize:vertical" placeholder="Lo que el docente pidió, cuestionó o elogió..."></textarea>
+  </div>
+
+  <div class="nav">
+    <button class="pbtn" onclick="go(3)">← Anterior</button>
+    <button class="nbtn" style="background:var(--color-background-danger);color:var(--color-text-danger)" onclick="go(5)">Actividad 5 — Retrospectiva →</button>
+  </div>
+</div>
+
+<!-- 5 RETRO -->
+<div class="panel" id="p5">
+  <div class="hdr" style="background:var(--color-background-danger)">
+    <p class="hdr-ey" style="color:var(--color-text-danger)">Actividad 5 · Retrospectiva</p>
+    <p class="hdr-ti">¿Cómo trabajamos?</p>
+    <p class="hdr-me"><span class="pill p-g">SM facilita</span><span class="pill p-a">todos hablan</span><span>15 min</span></p>
+    <p class="hdr-q">"La retro es la ceremonia más importante — y la primera que se saltea cuando hay presión. Eso es exactamente al revés." — Rose, cap. 7</p>
+  </div>
+
+  <div class="tw">
+    <div class="td" id="t5">15:00</div>
+    <div class="tl">Tiempo de la retrospectiva<br><span style="font-size:10px;color:var(--color-text-tertiary)">Tiene que terminar con 1 acción concreta: qué, quién y cuándo</span></div>
+    <div class="tb2">
+      <button class="bt go" onclick="startT(5,900)">▶ Iniciar</button>
+      <button class="bt" onclick="resetT(5,'15:00')">↺</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="sec">Regla del SM antes de empezar</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.65">Hablamos de <strong style="color:var(--color-text-primary)">comportamientos y procesos, no de personas</strong>. "La estimación estuvo muy lejos" está bien. "Fulanita no trabajó suficiente" no entra. <strong style="color:var(--color-text-primary)">Todos tienen que hablar</strong> — si alguien no habló, el SM pregunta directamente.</p>
+  </div>
+
+  <div class="card">
+    <p class="sec">Formato Starfish — completen juntos</p>
+    <div class="rgrid">
+      <div class="rcol" style="background:var(--color-background-success)">
+        <p class="rlbl" style="color:var(--color-text-success)">Seguir haciendo</p>
+        <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;line-height:1.35">¿Qué funcionó y queremos repetir?</p>
+        <textarea class="rtxt" placeholder="Ej: El standup de 10 min fue suficiente..."></textarea>
+        <textarea class="rtxt" placeholder="Otro..."></textarea>
+      </div>
+      <div class="rcol" style="background:var(--color-background-danger)">
+        <p class="rlbl" style="color:var(--color-text-danger)">Dejar de hacer</p>
+        <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;line-height:1.35">¿Qué nos frenó o no agregó valor?</p>
+        <textarea class="rtxt" placeholder="Ej: Las discusiones en el backlog duraron demasiado..."></textarea>
+        <textarea class="rtxt" placeholder="Otro..."></textarea>
+      </div>
+      <div class="rcol" style="background:var(--color-background-warning)">
+        <p class="rlbl" style="color:var(--color-text-warning)">Empezar a hacer</p>
+        <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;line-height:1.35">¿Qué deberíamos incorporar?</p>
+        <textarea class="rtxt" placeholder="Ej: Documentar bloqueos antes del standup..."></textarea>
+        <textarea class="rtxt" placeholder="Otro..."></textarea>
+      </div>
+    </div>
+    <div class="sm">
+      <p style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">La acción concreta del próximo sprint</p>
+      <p style="font-size:11px;color:var(--color-text-secondary);margin-bottom:8px">Sin acción, la retro es solo una queja. Tiene que tener dueño y fecha.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" placeholder="¿Qué cambiamos?" style="flex:2;min-width:140px;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:7px 10px;font-size:12px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary)"/>
+        <input type="text" placeholder="Responsable" style="flex:1;min-width:90px;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:7px 10px;font-size:12px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary)"/>
+        <input type="text" placeholder="Fecha" style="flex:1;min-width:80px;border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:7px 10px;font-size:12px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary)"/>
+      </div>
+    </div>
+    <div class="cg"><strong>Sprint terminado.</strong> En el plenario: ¿cuál fue la acción de mejora de cada squad? ¿Qué fue lo más incómodo de trabajar así?</div>
+  </div>
+
+  <div class="nav">
+    <button class="pbtn" onclick="go(4)">← Anterior</button>
+    <button class="nbtn" style="background:var(--color-background-success);color:var(--color-text-success)" onclick="go(0)">↺ Volver al inicio</button>
+  </div>
+</div>
+</div>
+
+<script>
+const tmrs={};
+function go(n){
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('on',i===n));
+  document.querySelectorAll('.sp').forEach((p,i)=>p.classList.toggle('on',i===n));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function startT(id,secs){
+  if(tmrs[id]){clearInterval(tmrs[id]);delete tmrs[id];}
+  let r=secs;
+  const el=document.getElementById('t'+id);
+  tmrs[id]=setInterval(()=>{
+    if(r<=0){clearInterval(tmrs[id]);el.textContent='00:00';el.classList.add('urg');return;}
+    r--;
+    const m=Math.floor(r/60),s=r%60;
+    el.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    el.classList.toggle('urg',r<=60);
+  },1000);
+}
+function resetT(id,lbl){
+  if(tmrs[id]){clearInterval(tmrs[id]);delete tmrs[id];}
+  const el=document.getElementById('t'+id);
+  el.textContent=lbl;
+  el.classList.remove('urg');
+}
+document.querySelectorAll('#sbl input[type=text]:last-child').forEach(inp=>{
+  inp.addEventListener('input',()=>{
+    let t=0;
+    document.querySelectorAll('#sbl input[type=text]:last-child').forEach(i=>{
+      const v=parseInt(i.value);
+      if(!isNaN(v))t+=v;
+    });
+    document.getElementById('tot').textContent=t;
+    document.getElementById('tot').style.color=t>12?'var(--color-text-danger)':t===12?'var(--color-text-success)':'var(--color-text-primary)';
+  });
+});
+</script>
